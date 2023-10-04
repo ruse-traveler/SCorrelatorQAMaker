@@ -1,0 +1,8 @@
+src/*
+!src/sphx-build
+!src/autogen.sh
+!src/configure.ac
+!src/Makefile.am
+!src/SCorrelatorQAMaker.cc
+!src/SCorrelatorQAMaker.h
+!src/SCorrelatorQAMakerLinkDef.h
