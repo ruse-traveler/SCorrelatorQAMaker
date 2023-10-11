@@ -8,7 +8,7 @@
 // Correlator analysis.
 // ----------------------------------------------------------------------------
 
-#define SCORRELATORPLOTTER_CC
+#define SCORRELATORQAMAKER_CC
 
 // user includes
 #include "SCorrelatorQAMaker.h"
