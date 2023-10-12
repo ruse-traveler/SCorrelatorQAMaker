@@ -40,14 +40,14 @@ void CalculateSigmaDca() {
 
   // lower verbosity
   gErrorIgnoreLevel = kError;
-  cout << "\n  Starting sigma-dca/dca check calculation..." << endl;
+  cout << "\n  Starting sigma-dca/dca calculation..." << endl;
 
   // options ------------------------------------------------------------------
 
   // io parameters
-  const string sInput("../../SCorrelatorJetTree/output/condor/final_merge/correlatorJetTree.pp200py8jet10run8_roughCutsWithTrkTupleQA.d11m10y2023.root");
+  const string sInput("../SCorrelatorJetTree/output/condor/final_merge/correlatorJetTree.pp200py8jet10run8_openCutsWithTrkTupleQA.d12m10y2023.root");
   const string sTuple("QA/Tracks/ntTrkQA"); 
-  const string sOutput("test.root");
+  const string sOutput("dcaSigmaCalc.pp200py8jet10run8_openCutsForCalc.d12m10y2023.root");
 
   // histogram parameters
   const array<string, NDca> sDcaVsPtAll = {"hDcaXYvsPtAll",       "hDcaZvsPtAll"};
@@ -285,7 +285,7 @@ void CalculateSigmaDca() {
       nBytes += bytes;
     }
 
-     announce progress
+    // announce progress
     const uint64_t iProg = iEntry + 1;
     if (iProg == nEntries) {
       cout << "      Processing entry " << iProg << "/" << nEntries << "..." << endl;
@@ -293,9 +293,15 @@ void CalculateSigmaDca() {
       cout << "      Processing entry " << iProg << "/" << nEntries << "...\r" << flush;
     }
 
+    // calculate max dca
+    const double dcaWidthXY = arrWidthFits[0] -> Eval(pt);
+    const double dcaWidthZ  = arrWidthFits[1] -> Eval(pt);
+    const double dcaMaxXY   = nCut * dcaWidthXY;
+    const double dcaMaxZ    = nCut * dcaWidthZ;
+
     // apply cuts
-    const bool isTrkInDcaCutXY = (abs(dcaxy) < dcaWidthXY);
-    const bool isTrkInDcaCutZ  = (abs(dcaz)  < dcaWidthZ);
+    const bool isTrkInDcaCutXY = (abs(dcaxy) < dcaMaxXY);
+    const bool isTrkInDcaCutZ  = (abs(dcaz)  < dcaMaxZ);
     const bool isTrkInDcaCut   = (isTrkInDcaCutXY && isTrkInDcaCutZ);
     if (!isTrkInDcaCut) continue;
 
