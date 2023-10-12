@@ -47,7 +47,7 @@ void CalculateSigmaDca() {
   // io parameters
   const string sInput("../SCorrelatorJetTree/output/condor/final_merge/correlatorJetTree.pp200py8jet10run8_openCutsWithTrkTupleQA.d12m10y2023.root");
   const string sTuple("QA/Tracks/ntTrkQA"); 
-  const string sOutput("dcaSigmaCalc.pp200py8jet10run8_openCutsForCalc.d12m10y2023.root");
+  const string sOutput("dcaSigmaCalc.pp200py8jet10run8_withCutsOtherThanDca.d12m10y2023.root");
 
   // histogram parameters
   const array<string, NDca> sDcaVsPtAll = {"hDcaXYvsPtAll",       "hDcaZvsPtAll"};
@@ -57,8 +57,8 @@ void CalculateSigmaDca() {
   const array<string, NDca> sTitleWidth = {"#DeltaDCA_{xy} [cm]", "#DeltaDCA_{z} [cm]"};
   const array<string, NDca> sTitleDca   = {"DCA_{xy} [cm]",       "DCA_{z} [cm]"};
   const string              sTitlePt("p_{T}^{trk} [GeV/c]");
-  const string              sDcaXyVsZAll("hDcaXyVsZAll");
-  const string              sDcaXyVsZSel("hDcaXyVsZSel");
+  const string              sDcaXYvsZAll("hDcaXYvsZAll");
+  const string              sDcaXYvsZSel("hDcaXYvsZSel");
 
   // fit parameters
   const uint16_t            cut(0);
@@ -72,6 +72,13 @@ void CalculateSigmaDca() {
   const array<float,  NPar> fWidthGuess   = {0.002, -0.005, 0.005};
 
   // cut parameters
+  const bool   doOtherCuts(true);
+  const float  nMvtxMin(2.);
+  const float  nInttMin(1.);
+  const float  nTpcMin(24.);
+  const float  qualMax(10.);
+  const float  etaMax(1.1);
+  const float  ptMin(0.1);
   const float  nCut(3.);
   const string sAll("all tracks");
   const string sSel("selected tracks");
@@ -82,7 +89,7 @@ void CalculateSigmaDca() {
   const pair<float, float>  widthPlotRange = {0.001, 0.05};
   const array<string, NDca> sDcaWidthPlot  = {"cWidthDcaXY", "cWidthDcaZ"};
   const array<string, NDca> sDcaVsPtPlot   = {"cDcaXYvsPt",  "cDcaZvsPt"};
-  const string              sDcaXyVsZPlot("cDcaXyVsZ");
+  const string              sDcaXYvsZPlot("cDcaXYvsZ");
 
   // text parameters
   const vector<string> sText = {
@@ -179,8 +186,8 @@ void CalculateSigmaDca() {
     );
   }
 
-  TH2D* hDcaXyVsZAll = new TH2D(
-    sDcaXyVsZAll.data(),
+  TH2D* hDcaXYvsZAll = new TH2D(
+    sDcaXYvsZAll.data(),
     sAll.data(),
     get<0>(dcaBins),
     get<1>(dcaBins).first,
@@ -189,8 +196,8 @@ void CalculateSigmaDca() {
     get<1>(dcaBins).first,
     get<1>(dcaBins).second
   );
-  TH2D* hDcaXyVsZSel = new TH2D(
-    sDcaXyVsZSel.data(),
+  TH2D* hDcaXYvsZSel = new TH2D(
+    sDcaXYvsZSel.data(),
     sSel.data(),
     get<0>(dcaBins),
     get<1>(dcaBins).first,
@@ -227,10 +234,22 @@ void CalculateSigmaDca() {
       cout << "      Processing entry " << iProg << "/" << nEntries << "...\r" << flush;
     }
 
+    // apply cuts other than dca if needed
+    if (doOtherCuts) {
+      const bool isNumMvtxGood = (nmvtxlayer > nMvtxMin);
+      const bool isNumInttGood = (ninttlayer > nInttMin);
+      const bool isNumTpcGood  = (ntpclayer  > nTpcMin);
+      const bool isQualityGood = (quality    < qualMax);
+      const bool isEtaGood     = (abs(eta)   < etaMax);
+      const bool isPtGood      = (pt         > ptMin);
+      const bool isTrackGood   = (isNumMvtxGood && isNumInttGood && isNumTpcGood && isQualityGood && isEtaGood && isPtGood);
+      if (!isTrackGood) continue;
+    }
+
     // fill histograms
     arrDcaVsPtAll[0] -> Fill(pt,   dcaxy);
     arrDcaVsPtAll[1] -> Fill(pt,   dcaz);
-    hDcaXyVsZAll     -> Fill(dcaz, dcaxy);
+    hDcaXYvsZAll     -> Fill(dcaz, dcaxy);
 
   }  // end entry loop 1
   cout << "    Finished 1st entry loop!" << endl;
@@ -265,7 +284,8 @@ void CalculateSigmaDca() {
     }
 
     // fit width of dca distributions 
-    arrDcaWidth[iDca]  -> Fit(arrWidthFits[iDca], sWidthOpt.data());
+    arrDcaWidth[iDca] -> Fit(arrWidthFits[iDca], sWidthOpt.data());
+    arrDcaWidth[iDca] -> SetName(sWidthName[iDca].data());
   }  // end dca variable loop
 
   // 2nd entry loop -------------------------------------------------------------
@@ -293,6 +313,18 @@ void CalculateSigmaDca() {
       cout << "      Processing entry " << iProg << "/" << nEntries << "...\r" << flush;
     }
 
+    // apply cuts other than dca if needed
+    if (doOtherCuts) {
+      const bool isNumMvtxGood = (nmvtxlayer > nMvtxMin);
+      const bool isNumInttGood = (ninttlayer > nInttMin);
+      const bool isNumTpcGood  = (ntpclayer  > nTpcMin);
+      const bool isQualityGood = (quality    < qualMax);
+      const bool isEtaGood     = (abs(eta)   < etaMax);
+      const bool isPtGood      = (pt         > ptMin);
+      const bool isTrackGood   = (isNumMvtxGood && isNumInttGood && isNumTpcGood && isQualityGood && isEtaGood && isPtGood);
+      if (!isTrackGood) continue;
+    }
+
     // calculate max dca
     const double dcaWidthXY = arrWidthFits[0] -> Eval(pt);
     const double dcaWidthZ  = arrWidthFits[1] -> Eval(pt);
@@ -308,7 +340,7 @@ void CalculateSigmaDca() {
     // fill histograms
     arrDcaVsPtSel[0] -> Fill(pt, dcaxy);
     arrDcaVsPtSel[1] -> Fill(pt, dcaz);
-    hDcaXyVsZSel     -> Fill(dcaz, dcaxy);
+    hDcaXYvsZSel     -> Fill(dcaz, dcaxy);
 
   }  // end entry loop 1
   cout << "    Finished 2nd entry loop!" << endl;
@@ -462,62 +494,62 @@ void CalculateSigmaDca() {
   }  // end variable loop
 
   // figure out dca xy vs. z z-axis ranges
-  const float minVsDcaAll = hDcaXyVsZAll -> GetMinimum(0.);
-  const float minVsDcaSel = hDcaXyVsZSel -> GetMinimum(0.);
-  const float maxVsDcaAll = hDcaXyVsZAll -> GetMaximum();
-  const float maxVsDcaSel = hDcaXyVsZSel -> GetMaximum();
+  const float minVsDcaAll = hDcaXYvsZAll -> GetMinimum(0.);
+  const float minVsDcaSel = hDcaXYvsZSel -> GetMinimum(0.);
+  const float maxVsDcaAll = hDcaXYvsZAll -> GetMaximum();
+  const float maxVsDcaSel = hDcaXYvsZSel -> GetMaximum();
   const float minVsDcaZ   = TMath::Min(minVsDcaAll, minVsDcaSel);
   const float maxVsDcaZ   = TMath::Max(maxVsDcaAll, maxVsDcaSel);
 
   // set dca xy vs. z hist options
-  hDcaXyVsZAll -> SetMarkerColor(fCol);
-  hDcaXyVsZAll -> SetMarkerStyle(fMar);
-  hDcaXyVsZAll -> SetLineColor(fCol);
-  hDcaXyVsZAll -> SetLineStyle(fLin);
-  hDcaXyVsZAll -> SetLineWidth(fWid);
-  hDcaXyVsZAll -> SetFillColor(fCol);
-  hDcaXyVsZAll -> SetFillStyle(fFil);
-  hDcaXyVsZAll -> SetTitleFont(fTxt);
-  hDcaXyVsZAll -> GetXaxis() -> SetRangeUser(dcaPlotRange.first, dcaPlotRange.second);
-  hDcaXyVsZAll -> GetXaxis() -> SetLabelSize(fLbl);
-  hDcaXyVsZAll -> GetXaxis() -> SetTitle(sTitleDca[1].data());
-  hDcaXyVsZAll -> GetXaxis() -> SetTitleFont(fTxt);
-  hDcaXyVsZAll -> GetXaxis() -> SetTitleSize(fTtl);
-  hDcaXyVsZAll -> GetXaxis() -> SetTitleOffset(fOffX);
-  hDcaXyVsZAll -> GetXaxis() -> CenterTitle(fCnt);
-  hDcaXyVsZAll -> GetYaxis() -> SetRangeUser(dcaPlotRange.first, dcaPlotRange.second);
-  hDcaXyVsZAll -> GetYaxis() -> SetLabelSize(fLbl);
-  hDcaXyVsZAll -> GetYaxis() -> SetTitle(sTitleDca[0].data());
-  hDcaXyVsZAll -> GetYaxis() -> SetTitleFont(fTxt);
-  hDcaXyVsZAll -> GetYaxis() -> SetTitleSize(fTtl);
-  hDcaXyVsZAll -> GetYaxis() -> SetTitleOffset(fOffY);
-  hDcaXyVsZAll -> GetYaxis() -> CenterTitle(fCnt);
-  hDcaXyVsZAll -> GetZaxis() -> SetRangeUser(minVsDcaZ, maxVsDcaZ);
-  hDcaXyVsZAll -> GetZaxis() -> SetLabelSize(fLbl);
-  hDcaXyVsZSel -> SetMarkerColor(fCol);
-  hDcaXyVsZSel -> SetMarkerStyle(fMar);
-  hDcaXyVsZSel -> SetLineColor(fCol);
-  hDcaXyVsZSel -> SetLineStyle(fLin);
-  hDcaXyVsZSel -> SetLineWidth(fWid);
-  hDcaXyVsZSel -> SetFillColor(fCol);
-  hDcaXyVsZSel -> SetFillStyle(fFil);
-  hDcaXyVsZSel -> SetTitleFont(fTxt);
-  hDcaXyVsZSel -> GetXaxis() -> SetRangeUser(dcaPlotRange.first, dcaPlotRange.second);
-  hDcaXyVsZSel -> GetXaxis() -> SetLabelSize(fLbl);
-  hDcaXyVsZSel -> GetXaxis() -> SetTitle(sTitleDca[1].data());
-  hDcaXyVsZSel -> GetXaxis() -> SetTitleFont(fTxt);
-  hDcaXyVsZSel -> GetXaxis() -> SetTitleSize(fTtl);
-  hDcaXyVsZSel -> GetXaxis() -> SetTitleOffset(fOffX);
-  hDcaXyVsZSel -> GetXaxis() -> CenterTitle(fCnt);
-  hDcaXyVsZSel -> GetYaxis() -> SetRangeUser(dcaPlotRange.first, dcaPlotRange.second);
-  hDcaXyVsZSel -> GetYaxis() -> SetLabelSize(fLbl);
-  hDcaXyVsZSel -> GetYaxis() -> SetTitle(sTitleDca[0].data());
-  hDcaXyVsZSel -> GetYaxis() -> SetTitleFont(fTxt);
-  hDcaXyVsZSel -> GetYaxis() -> SetTitleSize(fTtl);
-  hDcaXyVsZSel -> GetYaxis() -> SetTitleOffset(fOffY);
-  hDcaXyVsZSel -> GetYaxis() -> CenterTitle(fCnt);
-  hDcaXyVsZSel -> GetZaxis() -> SetRangeUser(minVsDcaZ, maxVsDcaZ);
-  hDcaXyVsZSel -> GetZaxis() -> SetLabelSize(fLbl);
+  hDcaXYvsZAll -> SetMarkerColor(fCol);
+  hDcaXYvsZAll -> SetMarkerStyle(fMar);
+  hDcaXYvsZAll -> SetLineColor(fCol);
+  hDcaXYvsZAll -> SetLineStyle(fLin);
+  hDcaXYvsZAll -> SetLineWidth(fWid);
+  hDcaXYvsZAll -> SetFillColor(fCol);
+  hDcaXYvsZAll -> SetFillStyle(fFil);
+  hDcaXYvsZAll -> SetTitleFont(fTxt);
+  hDcaXYvsZAll -> GetXaxis() -> SetRangeUser(dcaPlotRange.first, dcaPlotRange.second);
+  hDcaXYvsZAll -> GetXaxis() -> SetLabelSize(fLbl);
+  hDcaXYvsZAll -> GetXaxis() -> SetTitle(sTitleDca[1].data());
+  hDcaXYvsZAll -> GetXaxis() -> SetTitleFont(fTxt);
+  hDcaXYvsZAll -> GetXaxis() -> SetTitleSize(fTtl);
+  hDcaXYvsZAll -> GetXaxis() -> SetTitleOffset(fOffX);
+  hDcaXYvsZAll -> GetXaxis() -> CenterTitle(fCnt);
+  hDcaXYvsZAll -> GetYaxis() -> SetRangeUser(dcaPlotRange.first, dcaPlotRange.second);
+  hDcaXYvsZAll -> GetYaxis() -> SetLabelSize(fLbl);
+  hDcaXYvsZAll -> GetYaxis() -> SetTitle(sTitleDca[0].data());
+  hDcaXYvsZAll -> GetYaxis() -> SetTitleFont(fTxt);
+  hDcaXYvsZAll -> GetYaxis() -> SetTitleSize(fTtl);
+  hDcaXYvsZAll -> GetYaxis() -> SetTitleOffset(fOffY);
+  hDcaXYvsZAll -> GetYaxis() -> CenterTitle(fCnt);
+  hDcaXYvsZAll -> GetZaxis() -> SetRangeUser(minVsDcaZ, maxVsDcaZ);
+  hDcaXYvsZAll -> GetZaxis() -> SetLabelSize(fLbl);
+  hDcaXYvsZSel -> SetMarkerColor(fCol);
+  hDcaXYvsZSel -> SetMarkerStyle(fMar);
+  hDcaXYvsZSel -> SetLineColor(fCol);
+  hDcaXYvsZSel -> SetLineStyle(fLin);
+  hDcaXYvsZSel -> SetLineWidth(fWid);
+  hDcaXYvsZSel -> SetFillColor(fCol);
+  hDcaXYvsZSel -> SetFillStyle(fFil);
+  hDcaXYvsZSel -> SetTitleFont(fTxt);
+  hDcaXYvsZSel -> GetXaxis() -> SetRangeUser(dcaPlotRange.first, dcaPlotRange.second);
+  hDcaXYvsZSel -> GetXaxis() -> SetLabelSize(fLbl);
+  hDcaXYvsZSel -> GetXaxis() -> SetTitle(sTitleDca[1].data());
+  hDcaXYvsZSel -> GetXaxis() -> SetTitleFont(fTxt);
+  hDcaXYvsZSel -> GetXaxis() -> SetTitleSize(fTtl);
+  hDcaXYvsZSel -> GetXaxis() -> SetTitleOffset(fOffX);
+  hDcaXYvsZSel -> GetXaxis() -> CenterTitle(fCnt);
+  hDcaXYvsZSel -> GetYaxis() -> SetRangeUser(dcaPlotRange.first, dcaPlotRange.second);
+  hDcaXYvsZSel -> GetYaxis() -> SetLabelSize(fLbl);
+  hDcaXYvsZSel -> GetYaxis() -> SetTitle(sTitleDca[0].data());
+  hDcaXYvsZSel -> GetYaxis() -> SetTitleFont(fTxt);
+  hDcaXYvsZSel -> GetYaxis() -> SetTitleSize(fTtl);
+  hDcaXYvsZSel -> GetYaxis() -> SetTitleOffset(fOffY);
+  hDcaXYvsZSel -> GetYaxis() -> CenterTitle(fCnt);
+  hDcaXYvsZSel -> GetZaxis() -> SetRangeUser(minVsDcaZ, maxVsDcaZ);
+  hDcaXYvsZSel -> GetZaxis() -> SetLabelSize(fLbl);
   cout << "    Set histogram options." << endl;
 
   // text box options
@@ -631,42 +663,42 @@ void CalculateSigmaDca() {
   }  // end variable loop
 
   // make dca xy vs. z plot
-  TCanvas* cDcaXyVsZ    = new TCanvas(sDcaXyVsZPlot.data(), "", allVsSelDim.first, allVsSelDim.second);
-  TPad*    pDcaXyVsZAll = new TPad(sPadAll.data(), "", xyAllPad[0], xyAllPad[1], xyAllPad[2], xyAllPad[3]);
-  TPad*    pDcaXyVsZSel = new TPad(sPadSel.data(), "", xySelPad[0], xySelPad[1], xySelPad[2], xySelPad[3]);
-  cDcaXyVsZ    -> SetGrid(fGrid, fGrid);
-  cDcaXyVsZ    -> SetTicks(fTick, fTick);
-  cDcaXyVsZ    -> SetBorderMode(fMode);
-  cDcaXyVsZ    -> SetBorderSize(fBord);
-  pDcaXyVsZAll -> SetGrid(fGrid, fGrid);
-  pDcaXyVsZAll -> SetTicks(fTick, fTick);
-  pDcaXyVsZAll -> SetBorderMode(fMode);
-  pDcaXyVsZAll -> SetBorderSize(fBord);
-  pDcaXyVsZAll -> SetLogz(fLogZ);
-  pDcaXyVsZAll -> SetTopMargin(xyMarginPad[0]);
-  pDcaXyVsZAll -> SetRightMargin(xyMarginPad[1]);
-  pDcaXyVsZAll -> SetBottomMargin(xyMarginPad[2]);
-  pDcaXyVsZAll -> SetLeftMargin(xyMarginPad[3]);
-  pDcaXyVsZSel -> SetGrid(fGrid, fGrid);
-  pDcaXyVsZSel -> SetTicks(fTick, fTick);
-  pDcaXyVsZSel -> SetBorderMode(fMode);
-  pDcaXyVsZSel -> SetBorderSize(fBord);
-  pDcaXyVsZSel -> SetLogz(fLogZ);
-  pDcaXyVsZSel -> SetTopMargin(xyMarginPad[0]);
-  pDcaXyVsZSel -> SetRightMargin(xyMarginPad[1]);
-  pDcaXyVsZSel -> SetBottomMargin(xyMarginPad[2]);
-  pDcaXyVsZSel -> SetLeftMargin(xyMarginPad[3]);
-  cDcaXyVsZ    -> cd();
-  pDcaXyVsZAll -> Draw();
-  pDcaXyVsZSel -> Draw();
-  pDcaXyVsZAll -> cd();
-  hDcaXyVsZAll -> Draw("colz");
-  pDcaXyVsZSel -> cd();
-  hDcaXyVsZSel -> Draw("colz");
+  TCanvas* cDcaXYvsZ    = new TCanvas(sDcaXYvsZPlot.data(), "", allVsSelDim.first, allVsSelDim.second);
+  TPad*    pDcaXYvsZAll = new TPad(sPadAll.data(), "", xyAllPad[0], xyAllPad[1], xyAllPad[2], xyAllPad[3]);
+  TPad*    pDcaXYvsZSel = new TPad(sPadSel.data(), "", xySelPad[0], xySelPad[1], xySelPad[2], xySelPad[3]);
+  cDcaXYvsZ    -> SetGrid(fGrid, fGrid);
+  cDcaXYvsZ    -> SetTicks(fTick, fTick);
+  cDcaXYvsZ    -> SetBorderMode(fMode);
+  cDcaXYvsZ    -> SetBorderSize(fBord);
+  pDcaXYvsZAll -> SetGrid(fGrid, fGrid);
+  pDcaXYvsZAll -> SetTicks(fTick, fTick);
+  pDcaXYvsZAll -> SetBorderMode(fMode);
+  pDcaXYvsZAll -> SetBorderSize(fBord);
+  pDcaXYvsZAll -> SetLogz(fLogZ);
+  pDcaXYvsZAll -> SetTopMargin(xyMarginPad[0]);
+  pDcaXYvsZAll -> SetRightMargin(xyMarginPad[1]);
+  pDcaXYvsZAll -> SetBottomMargin(xyMarginPad[2]);
+  pDcaXYvsZAll -> SetLeftMargin(xyMarginPad[3]);
+  pDcaXYvsZSel -> SetGrid(fGrid, fGrid);
+  pDcaXYvsZSel -> SetTicks(fTick, fTick);
+  pDcaXYvsZSel -> SetBorderMode(fMode);
+  pDcaXYvsZSel -> SetBorderSize(fBord);
+  pDcaXYvsZSel -> SetLogz(fLogZ);
+  pDcaXYvsZSel -> SetTopMargin(xyMarginPad[0]);
+  pDcaXYvsZSel -> SetRightMargin(xyMarginPad[1]);
+  pDcaXYvsZSel -> SetBottomMargin(xyMarginPad[2]);
+  pDcaXYvsZSel -> SetLeftMargin(xyMarginPad[3]);
+  cDcaXYvsZ    -> cd();
+  pDcaXYvsZAll -> Draw();
+  pDcaXYvsZSel -> Draw();
+  pDcaXYvsZAll -> cd();
+  hDcaXYvsZAll -> Draw("colz");
+  pDcaXYvsZSel -> cd();
+  hDcaXYvsZSel -> Draw("colz");
   ptInfo       -> Draw();
   fOutput      -> cd();
-  cDcaXyVsZ    -> Write();
-  cDcaXyVsZ    -> Close();
+  cDcaXYvsZ    -> Write();
+  cDcaXYvsZ    -> Close();
   cout << "    Made plots." << endl;
 
   // save output & close ------------------------------------------------------
@@ -681,8 +713,8 @@ void CalculateSigmaDca() {
     arrFitsNeg[iDca]    -> Write();
     arrFitsPos[iDca]    -> Write();
   }
-  hDcaXyVsZAll -> Write();
-  hDcaXyVsZSel -> Write();
+  hDcaXYvsZAll -> Write();
+  hDcaXYvsZSel -> Write();
 
   // close flies
   fOutput -> cd();
