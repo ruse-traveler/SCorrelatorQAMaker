@@ -588,8 +588,8 @@ void CalculateSigmaDca() {
   const string   sPadSel("pSelect");
 
   // plot margins
-  const array<float, NVtx> xyMarginWidth = {0.02, 0.02, 0.15, 0.15};
-  const array<float, NVtx> xyMarginPad   = {0.15, 0.15, 0.15, 0.25};
+  const array<float, NVtx> xyMarginWidth = {0.02, 0.02, 0.1, 0.1};
+  const array<float, NVtx> xyMarginPad   = {0.1,  0.1,  0.1, 0.1};
 
   // canvas & pad dimensions
   const pair<uint32_t, uint32_t> widthDim    = {750,  750};
