@@ -1,3 +1,3 @@
 # SCorrelatorQAMaker [Under Construction]
 
-A module to generate TNtuples and histograms useful for producing QA plots relevant to the Cold QCD Energy-Energy Correlator analysis. 
+A module to generate TNtuples, histograms, functions useful for producing QA plots, determining event/track selection cuts, etc.  relevant to the Cold QCD Energy-Energy Correlator analysis. 
