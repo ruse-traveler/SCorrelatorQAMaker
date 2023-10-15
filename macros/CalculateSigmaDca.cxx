@@ -30,7 +30,7 @@ using namespace std;
 
 // global constants
 static const size_t NDca(2);
-static const size_t NPar(3);
+static const size_t NPar(4);
 static const size_t NObj(2);
 static const size_t NVtx(4);
 
@@ -47,7 +47,7 @@ void CalculateSigmaDca() {
   // io parameters
   const string sInput("../SCorrelatorJetTree/output/condor/final_merge/correlatorJetTree.pp200py8jet10run8_openCutsWithTrkTupleQA.d12m10y2023.root");
   const string sTuple("QA/Tracks/ntTrkQA"); 
-  const string sOutput("dcaSigmaCalc.pp200py8jet10run8_withCutsOtherThanDca.d12m10y2023.root");
+  const string sOutput("dcaSigmaCalc.pp200py8jet10run8_withCutsOtherThanDca_withCubicFitAndPtRange.d15m10y2023.root");
 
   // histogram parameters
   const array<string, NDca> sDcaVsPtAll = {"hDcaXYvsPtAll",       "hDcaZvsPtAll"};
@@ -63,13 +63,14 @@ void CalculateSigmaDca() {
   // fit parameters
   const uint16_t            cut(0);
   const string              sDcaFit("gaus(0)");
-  const string              sWidthFit("[0]+[1]/x+[2]/(x*x)");
+  const string              sWidthFit("[0]+[1]/x+[2]/(x*x)+[3]/(x*x*x)");
   const string              sDcaOpt("QNR");
   const string              sWidthOpt("R");
   const string              sParam("_2");
+  const pair<float, float>  ptFitRange    = {1., 15.};
   const array<string, NDca> sDcaFitName   = {"fFitDcaXY",   "fFitDcaZ"};
   const array<string, NDca> sWidthFitName = {"fFitWidthXY", "fFitWidthZ"};
-  const array<float,  NPar> fWidthGuess   = {0.002, -0.005, 0.005};
+  const array<float,  NPar> fWidthGuess   = {1., 1., 1., 1.};
 
   // cut parameters
   const bool   doOtherCuts(true);
@@ -284,7 +285,7 @@ void CalculateSigmaDca() {
     }
 
     // fit width of dca distributions 
-    arrDcaWidth[iDca] -> Fit(arrWidthFits[iDca], sWidthOpt.data());
+    arrDcaWidth[iDca] -> Fit(arrWidthFits[iDca], sWidthOpt.data(), "", ptFitRange.first, ptFitRange.second);
     arrDcaWidth[iDca] -> SetName(sWidthName[iDca].data());
   }  // end dca variable loop
 
@@ -588,8 +589,8 @@ void CalculateSigmaDca() {
   const string   sPadSel("pSelect");
 
   // plot margins
-  const array<float, NVtx> xyMarginWidth = {0.02, 0.02, 0.1, 0.1};
-  const array<float, NVtx> xyMarginPad   = {0.1,  0.1,  0.1, 0.1};
+  const array<float, NVtx> xyMarginWidth = {0.02, 0.02, 0.15, 0.15};
+  const array<float, NVtx> xyMarginPad   = {0.1,  0.15, 0.15, 0.15};
 
   // canvas & pad dimensions
   const pair<uint32_t, uint32_t> widthDim    = {750,  750};
