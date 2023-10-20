@@ -12,9 +12,11 @@
 #define SCORRELATORQAMAKER_H
 
 // standard c includes
+#include <array>
 #include <string>
 #include <vector>
 #include <cassert>
+#include <utility>
 #include <iostream>
 // f4a include
 #include <fun4all/SubsysReco.h>
@@ -56,10 +58,17 @@
 #include <particleflowreco/ParticleFlowElementContainer.h>
 // root objects
 #include <TH1.h>
+#include <TH2.h>
+#include <TF1.h>
 #include <TFile.h>
-#include <TTree.h>
+#include <TMath.h>
+#include <TError.h>
 #include <TNtuple.h>
 #include <TString.h>
+#include <TCanvas.h>
+#include <TObjArray.h>
+#include <TPaveText.h>
+#include <TGraphErrors.h>
 // analysis utilities
 #include "/sphenix/user/danderson/eec/SCorrelatorUtilities/SCorrelatorUtilities.h"
 
@@ -97,10 +106,10 @@ namespace SColdQcdCorrelatorAnalysis {
       TFile* m_outFile;
 
       // QA tuples
-      TNtuple* ntTrkQA;
-      TNtuple* ntFlowQA;
-      TNtuple* ntECalQA;
-      TNtuple* ntHCalQA;
+      TNtuple* m_ntTrkQA;
+      TNtuple* m_ntFlowQA;
+      TNtuple* m_ntECalQA;
+      TNtuple* m_ntHCalQA;
 
   };
 
