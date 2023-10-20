@@ -12,16 +12,36 @@
 
 // user includes
 #include "SCorrelatorQAMaker.h"
+#include "SCorrelatorQAMaker.sys.h"
+#include "SCorrelatorQAMaker.ana.h"
 
 using namespace std;
+using namespace findNode;
 
 
 
 namespace SColdQcdCorrelatorAnalysis {
 
-  // QA methods  --------------------------------------------------------------
+  // F4A methods  -------------------------------------------------------------
 
-  /* TODO these go here */
+  int SCorrelatorQAMaker::Init(PHCompositeNode* topNode) {
+    InitTuples();
+    return Fun4AllReturnCodes::EVENT_OK;
+
+  }  // end 'Init(PHCompositenNode*)'
+
+
+
+  int SCorrelatorQAMaker::process_event(PHCompositeNode* topNode) {
+    return Fun4AllReturnCodes::EVENT_OK;
+  }  // end 'process_event(PHCompositeNode* topNode)'
+
+
+
+  int SCorrelatorQAMaker::End(PHCompositeNode* topNode) {
+    DoSigmaDcaCalc();
+    return Fun4AllReturnCodes::EVENT_OK;
+  }  // end 'End(PHCompositeNode*)'
 
 }  // end SColdQcdCorrelatorAnalysis namespace
 

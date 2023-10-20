@@ -16,7 +16,45 @@
 #include <vector>
 #include <cassert>
 #include <iostream>
-// class declarations
+// f4a include
+#include <fun4all/SubsysReco.h>
+#include <fun4all/Fun4AllReturnCodes.h>
+#include <fun4all/Fun4AllHistoManager.h>
+// phool includes
+#include <phool/phool.h>
+#include <phool/getClass.h>
+#include <phool/PHIODataNode.h>
+#include <phool/PHNodeIterator.h>
+#include <phool/PHCompositeNode.h>
+// main geant4 includes
+#include <g4main/PHG4Hit.h>
+#include <g4main/PHG4Particle.h>
+#include <g4main/PHG4TruthInfoContainer.h>
+// track evaluator includes
+#include <g4eval/SvtxTrackEval.h>
+#include <g4eval/SvtxEvalStack.h>
+// vtx includes
+#include <globalvertex/GlobalVertex.h>
+#include <globalvertex/GlobalVertexMap.h>
+// tracking includes
+#include <trackbase_historic/SvtxTrack.h>
+#include <trackbase_historic/SvtxVertex.h>
+#include <trackbase_historic/SvtxTrackMap.h>
+#include <trackbase_historic/SvtxVertexMap.h>
+#include <trackbase_historic/TrackAnalysisUtils.h>
+// calo includes
+#include <calobase/RawCluster.h>
+#include <calobase/RawClusterUtility.h>
+#include <calobase/RawClusterContainer.h>
+#include <calobase/RawTower.h>
+#include <calobase/RawTowerGeom.h>
+#include <calobase/RawTowerContainer.h>
+#include <calobase/RawTowerGeomContainer.h>
+#include <calotrigger/CaloTriggerInfo.h>
+// particle flow includes
+#include <particleflowreco/ParticleFlowElement.h>
+#include <particleflowreco/ParticleFlowElementContainer.h>
+// root objects
 #include <TH1.h>
 #include <TFile.h>
 #include <TTree.h>
@@ -26,6 +64,7 @@
 #include "/sphenix/user/danderson/eec/SCorrelatorUtilities/SCorrelatorUtilities.h"
 
 using namespace std;
+using namespace findNode;
 
 
 
@@ -33,21 +72,35 @@ using namespace std;
 
 namespace SColdQcdCorrelatorAnalysis {
 
-  class SCorrelatorQAMaker {
+  class SCorrelatorQAMaker : public SubsysReco {
 
     public:
 
       // ctor/dtor
-      SCorrelatorQAMaker();
-      ~SCorrelatorQAMaker();
+      SCorrelatorQAMaker()  {};
+      ~SCorrelatorQAMaker() {};
 
-      /* TODO plotting methods go here */
+      // F4A methods
+      int Init(PHCompositeNode*)          override;
+      int process_event(PHCompositeNode*) override;
+      int End(PHCompositeNode*)           override;
 
     private:
 
-      /* TODO members go here */
+      // system methods
+      void InitTuples();
 
-      /* TODO helper methods go here */
+      // analysis methods
+      void DoSigmaDcaCalc();
+
+      // io members
+      TFile* m_outFile;
+
+      // QA tuples
+      TNtuple* ntTrkQA;
+      TNtuple* ntFlowQA;
+      TNtuple* ntECalQA;
+      TNtuple* ntHCalQA;
 
   };
 
