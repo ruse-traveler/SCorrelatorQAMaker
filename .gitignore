@@ -5,6 +5,7 @@ reference/*
 !src/autogen.sh
 !src/configure.ac
 !src/Makefile.am
+!src/SBaseQAPlugin.h
 !src/SCorrelatorQAMaker.cc
 !src/SCorrelatorQAMaker.h
 !src/SCorrelatorQAMaker.sys.h
