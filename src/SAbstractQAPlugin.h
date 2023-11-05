@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------------
-// 'SBaseQAPlugin.h'
+// 'SAbstractQAPlugin.h'
 // Derek Anderson
 // 11.01.2023
 //
@@ -20,28 +20,36 @@
 
 namespace SColdQcdCorrelatorAnalysis {
 
-  // SBaseQAPlugin definition -------------------------------------------------
+  // SBaseQAPluginConfig definition ---------------------------------------
 
-  class SBaseQAPlugin : public SubsysReco{
+  struct SAbstractQAPluginConfig {
+
+    virtual ~SAbstractQAPluginConfig {};
+
+  };  // end SBaseQAPluginConfig
+
+
+
+  // SAbstractQAPlugin definition ---------------------------------------------
+
+  class SAbstractQAPlugin
 
     public:
 
       // ctor/dtor
-      SBaseQAPlugin()  {};
-      ~SBaseQAPlugin() {};
+      SAbstractQAPlugin()  {};
+      ~SAbstractQAPlugin() {};
 
-      // F4A methods
-      int Init(PHCompositeNode*)          override;
-      int process_event(PHCompositeNode*) override;
-      int End(PHCompositeNode*)           override;
-
-      // setters
+      // output setters
       void SetOutFile(const string out) {m_outFileName = out;}
       void SetOutDir(const string out)  {m_outDirName = out;}
 
-      // getters
+      // output getters
       TFile*      GetOutFile() {return m_outFile;}
       TDirectory* GetOutDir()  {return m_outDir;}
+
+      // set configuration
+      virtual SetConfig(const SAbstractQAPluginConfig& config) = 0;
 
     private:
 
@@ -71,7 +79,7 @@ namespace SColdQcdCorrelatorAnalysis {
       string m_outFileName = "";
       string m_outDirName  = "";
 
-  };  // end SBaseQAPlugin Definition
+  };  // end SAbstractQAPlugin Definition
 
 }  // end SColdQcdCorrelatorAnalysis namespace
 
