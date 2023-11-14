@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------------
-// 'SAbstractQAPlugin.h'
+// 'SBaseQAPlugin.h'
 // Derek Anderson
 // 11.01.2023
 //
@@ -17,27 +17,20 @@
 #include <TSystem.h>
 #include <TDirectory.h>
 
+
+
+
 namespace SColdQcdCorrelatorAnalysis {
 
-  // SBaseQAPluginConfig definition ---------------------------------------
+  // SBaseQAPlugin definition -------------------------------------------------
 
-  struct SAbstractQAPluginConfig {
-
-    virtual ~SAbstractQAPluginConfig {};
-
-  };  // end SBaseQAPluginConfig
-
-
-
-  // SAbstractQAPlugin definition ---------------------------------------------
-
-  class SAbstractQAPlugin
+  template <class Config> class SBaseQAPlugin {
 
     public:
 
       // ctor/dtor
-      SAbstractQAPlugin()  {};
-      ~SAbstractQAPlugin() {};
+      SBaseQAPlugin()  {};
+      ~SBaseQAPlugin() {};
 
       // output setters
       void SetOutFile(const string out) {m_outFileName = out;}
@@ -47,8 +40,8 @@ namespace SColdQcdCorrelatorAnalysis {
       TFile*      GetOutFile() {return m_outFile;}
       TDirectory* GetOutDir()  {return m_outDir;}
 
-      // pure virtual set configuration
-      virtual SetConfig() = 0;
+      // configuration setter
+      void SetConfig(Config& cfg) {m_config = cfg;}
 
     private:
 
@@ -56,7 +49,7 @@ namespace SColdQcdCorrelatorAnalysis {
 
         // check output file and create if needed
         const bool doesFileExist = gSystem -> AccessPathName(m_outFileName.data());
-        if (!m_outFile) {
+        if (!doesFileExist) {
           m_outFile = new TFile(m_outFileName.data(), "create");
         }
 
@@ -78,7 +71,10 @@ namespace SColdQcdCorrelatorAnalysis {
       string m_outFileName = "";
       string m_outDirName  = "";
 
-  };  // end SAbstractQAPlugin Definition
+      // routine configuration
+      Config m_config;
+
+  };  // end SBaseQAPlugin Definition
 
 }  // end SColdQcdCorrelatorAnalysis namespace
 
