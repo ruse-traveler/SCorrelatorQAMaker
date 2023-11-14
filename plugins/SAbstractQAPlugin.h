@@ -7,12 +7,11 @@
 // module.
 // ----------------------------------------------------------------------------
 
-#ifndef SBASEQAPLUGIN_H
-#define SBASEQAPLUGIN_H
+#ifndef SABSTRACTQAPLUGIN_H
+#define SABSTRACTQAPLUGIN_H
 
 // c++ utilities
 #include <string>
-#include <cassert>
 // root libraries
 #include <TFile.h>
 #include <TSystem.h>
@@ -48,8 +47,8 @@ namespace SColdQcdCorrelatorAnalysis {
       TFile*      GetOutFile() {return m_outFile;}
       TDirectory* GetOutDir()  {return m_outDir;}
 
-      // set configuration
-      virtual SetConfig(const SAbstractQAPluginConfig& config) = 0;
+      // pure virtual set configuration
+      virtual SetConfig() = 0;
 
     private:
 
@@ -66,7 +65,7 @@ namespace SColdQcdCorrelatorAnalysis {
         if (!doesDirExist) {
           m_outDir = (TDirectory*) m_outFile -> mkdir(m_outDirName.data());
         } else {
-          m_outDir = (TDirecoty*) m_outFile -> GetDirectory(m_outDirName.data());
+          m_outDir = (TDirectory*) m_outFile -> GetDirectory(m_outDirName.data());
         }
         return;
       };  // end 'InitOutput()'
