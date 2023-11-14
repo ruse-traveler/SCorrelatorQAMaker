@@ -18,9 +18,10 @@ using namespace std;
 
 namespace SColdQcdCorrelatorAnalysis {
 
+/*
   void SCorrelatorQAMaker::DoSigmaDcaCalc() {
 
-    /* TODO clean up and remove unncessary bits */
+    // TODO clean up and remove unncessary bits
 
     // global constants
     const size_t NDca(2);
@@ -159,7 +160,7 @@ namespace SColdQcdCorrelatorAnalysis {
 
     // 1st entry loop -------------------------------------------------------------
 
-    /* TODO replace with RDataFrames */
+    // TODO replace with RDataFrames
 
     // start entry loop
     uint64_t nEntries = m_ntTrkQA -> GetEntries();
@@ -241,7 +242,7 @@ namespace SColdQcdCorrelatorAnalysis {
 
     // 2nd entry loop -------------------------------------------------------------
 
-    /* TODO replace with RDataFrame */
+    // TODO replace with RDataFrame
 
     // start entry loop
     cout << "    Starting 2nd entry loop: applying a cut of " << nCut << " times the DCA width" << endl;
@@ -346,6 +347,7 @@ namespace SColdQcdCorrelatorAnalysis {
 
     return;
   }  // end 'DoSigmaDcaCalc()'
+*/
 
 }  // end SColdQcdCorrelatorAnalysis namespace
 

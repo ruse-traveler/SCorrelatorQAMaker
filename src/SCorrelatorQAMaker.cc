@@ -39,7 +39,6 @@ namespace SColdQcdCorrelatorAnalysis {
 
 
   int SCorrelatorQAMaker::End(PHCompositeNode* topNode) {
-    DoSigmaDcaCalc();
     return Fun4AllReturnCodes::EVENT_OK;
   }  // end 'End(PHCompositeNode*)'
 
