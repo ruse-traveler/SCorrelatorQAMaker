@@ -17,6 +17,7 @@
 #include <TSystem.h>
 #include <TDirectory.h>
 
+using namespace std;
 
 
 
@@ -32,16 +33,14 @@ namespace SColdQcdCorrelatorAnalysis {
       SBaseQAPlugin()  {};
       ~SBaseQAPlugin() {};
 
-      // output setters
-      void SetOutFile(const string out) {m_outFileName = out;}
-      void SetOutDir(const string out)  {m_outDirName = out;}
+      // setters
+      void SetOutFile(const string file) {m_outFileName = file;}
+      void SetOutDir(const string name)  {m_outDirName  = name;}
+      void SetConfig(Config& cfg)        {m_config      = cfg;}
 
       // output getters
       TFile*      GetOutFile() {return m_outFile;}
       TDirectory* GetOutDir()  {return m_outDir;}
-
-      // configuration setter
-      void SetConfig(Config& cfg) {m_config = cfg;}
 
     private:
 
@@ -62,6 +61,18 @@ namespace SColdQcdCorrelatorAnalysis {
         }
         return;
       };  // end 'InitOutput()'
+
+      void CloseOutput() {
+
+        // close output if still open
+        const bool isFileOpen = m_outFile -> IsOpen();
+        if (isFileOpen) {
+          m_outFile -> cd();
+          m_outFile -> Close();
+        }
+        return;
+
+      };  // end 'CloseOutput()'
 
       // io members
       TFile*      m_outFile = NULL;

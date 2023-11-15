@@ -1,5 +1,6 @@
 src/*
 output/*
+backup/*
 reference/*
 !src/sphx-build
 !src/autogen.sh
@@ -7,6 +8,6 @@ reference/*
 !src/Makefile.am
 !src/SCorrelatorQAMaker.cc
 !src/SCorrelatorQAMaker.h
-!src/SCorrelatorQAMaker.sys.h
-!src/SCorrelatorQAMaker.ana.h
+!src/SBaseQAPlugin.h
+!src/SCheckTrackPairs.h
 !src/SCorrelatorQAMakerLinkDef.h

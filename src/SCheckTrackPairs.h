@@ -15,6 +15,7 @@
 #include <string>
 // f4a libraries
 #include <fun4all/SubsysReco.h>
+#include <fun4all/Fun4AllReturnCodes.h>
 #include <fun4all/Fun4AllHistoManager.h>
 // phool libraries
 #include <phool/phool.h>
@@ -69,9 +70,38 @@ namespace SColdQcdCorrelatorAnalysis {
     private:
 
       // TODO put in implementation
-      void InitTuples();
+      void InitTuples() {};
 
   };  // end SCheckTrackPairs
+
+
+
+  // SCheckTrackPairs definition ----------------------------------------------
+
+  int SCheckTrackPairs::Init(PHCompositeNode* topNode) {
+
+    /* TODO put stuff here */
+    return Fun4AllReturnCodes::EVENT_OK;
+
+  }  // end 'Init(PHCompositenNode*)'
+
+
+
+  int SCheckTrackPairs::process_event(PHCompositeNode* topNode) {
+
+    /* TODO put stuff here */
+    return Fun4AllReturnCodes::EVENT_OK;
+
+  }  // end 'process_event(PHCompositeNode* topNode)'
+
+
+
+  int SCheckTrackPairs::End(PHCompositeNode* topNode) {
+
+    /* TODO put stuff here */
+    return Fun4AllReturnCodes::EVENT_OK;
+
+  }  // end 'End(PHCompositeNode*)'
 
 }  // end SColdQcdCorrelatorAnalysis namespace
 
