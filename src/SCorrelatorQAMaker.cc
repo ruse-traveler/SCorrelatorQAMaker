@@ -12,8 +12,6 @@
 
 // user includes
 #include "SCorrelatorQAMaker.h"
-#include "SCorrelatorQAMaker.sys.h"
-#include "SCorrelatorQAMaker.ana.h"
 
 using namespace std;
 using namespace findNode;
@@ -22,25 +20,20 @@ using namespace findNode;
 
 namespace SColdQcdCorrelatorAnalysis {
 
-  // F4A methods  -------------------------------------------------------------
+  // ctor/dtor ----------------------------------------------------------------
 
-  int SCorrelatorQAMaker::Init(PHCompositeNode* topNode) {
-    InitTuples();
-    return Fun4AllReturnCodes::EVENT_OK;
+  SCorrelatorQAMaker::SCorrelatorQAMaker() {
 
-  }  // end 'Init(PHCompositenNode*)'
+    m_checkTrackPairs = new SCheckTrackPairs();
 
-
-
-  int SCorrelatorQAMaker::process_event(PHCompositeNode* topNode) {
-    return Fun4AllReturnCodes::EVENT_OK;
-  }  // end 'process_event(PHCompositeNode* topNode)'
+  }  // end ctor
 
 
+  SCorrelatorQAMaker::~SCorrelatorQAMaker() {
 
-  int SCorrelatorQAMaker::End(PHCompositeNode* topNode) {
-    return Fun4AllReturnCodes::EVENT_OK;
-  }  // end 'End(PHCompositeNode*)'
+    delete m_checkTrackPairs;
+
+  }  // end dtor
 
 }  // end SColdQcdCorrelatorAnalysis namespace
 
