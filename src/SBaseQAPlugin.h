@@ -34,15 +34,17 @@ namespace SColdQcdCorrelatorAnalysis {
       ~SBaseQAPlugin() {};
 
       // setters
-      void SetOutFile(const string file) {m_outFileName = file;}
-      void SetOutDir(const string name)  {m_outDirName  = name;}
-      void SetConfig(Config& cfg)        {m_config      = cfg;}
+      void SetDebug(const bool debug)        {m_isDebugOn   = debug;}
+      void SetOutFile(const string file)     {m_outFileName = file;}
+      void SetOutDir(const string name)      {m_outDirName  = name;}
+      void SetVerbosity(const uint16_t verb) {m_verbosity   = verb;}
+      void SetConfig(Config& cfg)            {m_config      = cfg;}
 
       // output getters
       TFile*      GetOutFile() {return m_outFile;}
       TDirectory* GetOutDir()  {return m_outDir;}
 
-    private:
+    protected:
 
       void InitOutput() {
 
@@ -79,8 +81,10 @@ namespace SColdQcdCorrelatorAnalysis {
       TDirectory* m_outDir  = NULL;
 
       // atomic members
-      string m_outFileName = "";
-      string m_outDirName  = "";
+      bool     m_isDebugOn   = "";
+      string   m_outFileName = "";
+      string   m_outDirName  = "";
+      uint16_t m_verbosity   = 0;
 
       // routine configuration
       Config m_config;

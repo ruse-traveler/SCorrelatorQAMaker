@@ -13,6 +13,7 @@
 
 // c++ utilities
 #include <string>
+#include <vector>
 // f4a libraries
 #include <fun4all/SubsysReco.h>
 #include <fun4all/Fun4AllReturnCodes.h>
@@ -69,18 +70,22 @@ namespace SColdQcdCorrelatorAnalysis {
 
     private:
 
-      // TODO put in implementation
-      void InitTuples() {};
+      // internal methods
+      void InitTuples();
+      void SaveOutput();
+
+      // root members
+      TNtuple* m_ntTrackPairs;
 
   };  // end SCheckTrackPairs
 
 
 
-  // SCheckTrackPairs definition ----------------------------------------------
+  // SCheckTrackPairs public methods ------------------------------------------
 
   int SCheckTrackPairs::Init(PHCompositeNode* topNode) {
 
-    /* TODO put stuff here */
+    InitTuples();
     return Fun4AllReturnCodes::EVENT_OK;
 
   }  // end 'Init(PHCompositenNode*)'
@@ -98,10 +103,93 @@ namespace SColdQcdCorrelatorAnalysis {
 
   int SCheckTrackPairs::End(PHCompositeNode* topNode) {
 
-    /* TODO put stuff here */
+    SaveOutput();
     return Fun4AllReturnCodes::EVENT_OK;
 
   }  // end 'End(PHCompositeNode*)'
+
+
+
+  // SCheckTrackPairs internal methods ----------------------------------------
+
+  void SCheckTrackPairs::InitTuples() {
+
+    if (m_isDebugOn && (m_verbosity > 2)) {
+      cout << "SColdQcdCorrelatorAnalysis::SCheckTrackPairs::InitTuples(): initializing output tuple." << endl;
+    }
+
+    // track pair leaves
+    const vector<string> vecTrkPairLeaves = {
+      "trkid_a",
+      "trkid_b",
+      "pt_a",
+      "pt_b",
+      "eta_a",
+      "eta_b",
+      "phi_a",
+      "phi_b",
+      "ene_a",
+      "ene_b",
+      "dcaxy_a",
+      "dcaxy_b",
+      "dcaz_a",
+      "dcaz_b",
+      "vtxx_a",
+      "vtxx_b",
+      "vtxy_a",
+      "vtxy_b",
+      "vtxz_a",
+      "vtxz_b",
+      "quality_a",
+      "quality_b",
+      "deltapt_a",
+      "deltapt_b",
+      "nmvtxlayers_a",
+      "nmvtxlayers_b",
+      "ninttlayers_a",
+      "ninttlayers_b",
+      "ntpclayers_a",
+      "ntpclayers_b",
+      "nmvtxclusts_a",
+      "nmvtxclusts_b",
+      "ninttclusts_a",
+      "ninttclusts_b",
+      "ntpcclusts_a",
+      "ntpcclusts_b",
+      "nclustkey_a",
+      "nclustkey_b",
+      "nsameclustkey",
+      "deltartrack"
+    };
+
+    // compress leaves into a list
+    string argTrkPairLeaves("");
+    for (size_t iLeaf = 0; iLeaf < vecTrkPairLeaves.size(); iLeaf++) {
+      argTrkPairLeaves.append(vecTrkPairLeaves[iLeaf]);
+      if ((iLeaf + 1) != vecTrkPairLeaves.size()) {
+        argTrkPairLeaves.append(":");
+      }
+    }
+
+    // create tuple and return
+    m_ntTrackPairs = new TNtuple("ntTrackPairs", "Pairs of tracks",   argTrkPairLeaves.data());
+    return;
+
+  }  // end 'InitTuples()'
+
+
+
+  void SCheckTrackPairs::SaveOutput() {
+
+    if (m_isDebugOn && (m_verbosity > 2)) {
+      cout << "SColdQcdCorrelatorAnalysis::SCheckTrackPairs::SaveOutput(): saving output." << endl;
+    }
+
+    m_outDir       -> cd();
+    m_ntTrackPairs -> Write();
+    return;
+
+  }  // end 'SaveOutput()'
 
 }  // end SColdQcdCorrelatorAnalysis namespace
 
