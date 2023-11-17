@@ -76,7 +76,7 @@ namespace SColdQcdCorrelatorAnalysis {
       void InitTuples();
       void SaveOutput();
       void ResetVectors();
-      void DoDoubleTrackLoop();
+      void DoDoubleTrackLoop(PHCompositeNode* topNode);
 
       // vector members
       vector<float>             vecTrackPairLeaves;
@@ -211,7 +211,7 @@ namespace SColdQcdCorrelatorAnalysis {
     }
 
     // set leaf values to a default
-    const size_t nLeaves = vecTrackPairLeaves.size()
+    const size_t nLeaves = vecTrackPairLeaves.size();
     for (size_t iLeaf = 0; iLeaf < nLeaves; iLeaf++) {
       vecTrackPairLaves[iLeaf] = -999.;
     }
@@ -262,12 +262,12 @@ namespace SColdQcdCorrelatorAnalysis {
       const double trkDeltaPtA   = GetTrackDeltaPt(trackA);
       const double trkDcaXYA     = trkDcaPairA.first;
       const double trkDcaZA      = trkDcaPairA.second;
-      const int    trkNumTpcA    = GetNumLayer(trackA, SUBSYS::TPC);
-      const int    trkNumInttA   = GetNumLayer(trackA, SUBSYS::INTT);
-      const int    trkNumMvtxA   = GetNumLayer(trackA, SUBSYS::MVTX);
-      const int    trkClustTpcA  = GetNumClust(trackA, SUBSYS::TPC);
-      const int    trkClustInttA = GetNumClust(trackA, SUBSYS::INTT);
-      const int    trkClustMvtxA = GetNumClust(trackA, SUBSYS::MVTX);
+      const int    trkNumTpcA    = GetNumLayer(trackA, Subsys::Tpc);
+      const int    trkNumInttA   = GetNumLayer(trackA, Subsys::Intt);
+      const int    trkNumMvtxA   = GetNumLayer(trackA, Subsys::Mvtx);
+      const int    trkClustTpcA  = GetNumClust(trackA, Subsys::Tpc);
+      const int    trkClustInttA = GetNumClust(trackA, Subsys::Intt);
+      const int    trkClustMvtxA = GetNumClust(trackA, Subsys::Mvtx);
       const int    trkIDA        = trackA -> get_id();
 
       // loop over tracks again
@@ -302,12 +302,12 @@ namespace SColdQcdCorrelatorAnalysis {
         const double trkDeltaPtB   = GetTrackDeltaPt(trackB);
         const double trkDcaXYB     = trkDcaPairB.first;
         const double trkDcaZB      = trkDcaPairB.second;
-        const int    trkNumTpcB    = GetNumLayer(trackB, SUBSYS::TPC);
-        const int    trkNumInttB   = GetNumLayer(trackB, SUBSYS::INTT);
-        const int    trkNumMvtxB   = GetNumLayer(trackB, SUBSYS::MVTX);
-        const int    trkClustTpcB  = GetNumClust(trackB, SUBSYS::TPC);
-        const int    trkClustInttB = GetNumClust(trackB, SUBSYS::INTT);
-        const int    trkClustMvtxB = GetNumClust(trackB, SUBSYS::MVTX);
+        const int    trkNumTpcB    = GetNumLayer(trackB, Subsys::Tpc);
+        const int    trkNumInttB   = GetNumLayer(trackB, Subsys::Intt);
+        const int    trkNumMvtxB   = GetNumLayer(trackB, Subsys::Mvtx);
+        const int    trkClustTpcB  = GetNumClust(trackB, Subsys::Tpc);
+        const int    trkClustInttB = GetNumClust(trackB, Subsys::Intt);
+        const int    trkClustMvtxB = GetNumClust(trackB, Subsys::Mvtx);
 
         // calculate delta-R
         const double dfTrkAB = trkPhiA - trkPhiB;
