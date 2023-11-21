@@ -14,6 +14,15 @@
 // c++ utilities
 #include <string>
 #include <vector>
+// root utilities
+#include <TH1.h>
+#include <TH2.h>
+#include <TF1.h>
+#include <TFile.h>
+#include <TTree.h>
+#include <TMath.h>
+#include <TNtuple.h>
+#include <Math/Vector3D.h>
 // f4a libraries
 #include <fun4all/SubsysReco.h>
 #include <fun4all/Fun4AllReturnCodes.h>
@@ -28,14 +37,6 @@
 #include <trackbase_historic/SvtxTrack.h>
 #include <trackbase_historic/SvtxTrackMap.h>
 #include <trackbase_historic/TrackAnalysisUtils.h>
-// root utilities
-#include <TH1.h>
-#include <TH2.h>
-#include <TF1.h>
-#include <TFile.h>
-#include <TTree.h>
-#include <TMath.h>
-#include <TNtuple.h>
 // analysis utilities
 #include "SBaseQAPlugin.h"
 #include "/sphenix/user/danderson/eec/SCorrelatorUtilities/SCorrelatorUtilities.TrkTools.h"
@@ -44,7 +45,7 @@
 // make common namespaces implicit
 using namespace std;
 using namespace findNode;
-
+using namespace SColdQcdCorrelatorAnalysis::SCorrelatorUtilities;
 
 
 namespace SColdQcdCorrelatorAnalysis {
@@ -213,7 +214,7 @@ namespace SColdQcdCorrelatorAnalysis {
     // set leaf values to a default
     const size_t nLeaves = vecTrackPairLeaves.size();
     for (size_t iLeaf = 0; iLeaf < nLeaves; iLeaf++) {
-      vecTrackPairLaves[iLeaf] = -999.;
+      vecTrackPairLeaves[iLeaf] = -999.;
     }
 
     // clear cluster keys
@@ -228,11 +229,7 @@ namespace SColdQcdCorrelatorAnalysis {
   void SCheckTrackPairs::DoDoubleTrackLoop(PHCompositeNode* topNode) {
 
     // loop over tracks
-    unsigned int  iCst    = particles.size();
-    unsigned int  nTrkTot = 0;
-    unsigned int  nTrkAcc = 0;
-    double        eTrkSum = 0.;
-    SvtxTrack*    track   = NULL;
+    SvtxTrack*    trackA  = NULL;
     SvtxTrack*    trackB  = NULL;
     SvtxTrackMap* mapTrks = GetTrackMap(topNode);
     for (SvtxTrackMap::Iter itTrkA = mapTrks -> begin(); itTrkA != mapTrks -> end(); ++itTrkA) {
@@ -245,8 +242,8 @@ namespace SColdQcdCorrelatorAnalysis {
       //if (!isGoodTrackA) continue;
 
       // grab track dca and vertex
-      pair<double, double> trkDcaPairA = GetTrackDcaPair(trackA, topNode);
-      CLHEP::Hep3Vector    trkVtxA     = GetTrackVertex(trackA, topNode);
+      pair<double, double>  trkDcaPairA = GetTrackDcaPair(trackA, topNode);
+      ROOT::Math::XYZVector trkVtxA     = GetTrackVertex(trackA, topNode);
 
       // grab track A kinematic info
       const double trkPhiA = trackA -> get_phi();
@@ -255,7 +252,7 @@ namespace SColdQcdCorrelatorAnalysis {
       const double trkPxA  = trackA -> get_px();
       const double trkPyA  = trackA -> get_py();
       const double trkPzA  = trackA -> get_pz();
-      const double trkE A  = sqrt((trkPxA * trkPxA) + (trkPyA * trkPyA) + (trkPzA * trkPzA) + (0.140 * 0.140));  // FIXME move pion mass to constant in utilities namespace
+      const double trkEA   = sqrt((trkPxA * trkPxA) + (trkPyA * trkPyA) + (trkPzA * trkPzA) + (MassPion * MassPion));
 
       // grab track A quality info
       const double trkQualityA   = trackA -> get_quality();
@@ -285,8 +282,8 @@ namespace SColdQcdCorrelatorAnalysis {
         if (trkIDA == trkIDB) continue;
 
         // grab track B dca and vertex
-        pair<double, double> trkDcaPairB = GetTrackDcaPair(trackB, topNode);
-        CLHEP::Hep3Vector    trkVtxB     = GetTrackVertex(trackB, topNode);
+        pair<double, double>  trkDcaPairB = GetTrackDcaPair(trackB, topNode);
+        ROOT::Math::XYZVector trkVtxB     = GetTrackVertex(trackB, topNode);
 
         // grab track B kinematic info
         const double trkPhiB = trackB -> get_phi();
@@ -295,7 +292,7 @@ namespace SColdQcdCorrelatorAnalysis {
         const double trkPxB  = trackB -> get_px();
         const double trkPyB  = trackB -> get_py();
         const double trkPzB  = trackB -> get_pz();
-        const double trkEB   = sqrt((trkPxB * trkPxB) + (trkPyB * trkPyB) + (trkPzB * trkPzB) + (0.140 * 0.140));
+        const double trkEB   = sqrt((trkPxB * trkPxB) + (trkPyB * trkPyB) + (trkPzB * trkPzB) + (MassPion * MassPion));
 
         // grab track B quality info
         const double trkQualityB   = trackB -> get_quality();
@@ -315,15 +312,15 @@ namespace SColdQcdCorrelatorAnalysis {
         const double drTrkAB = sqrt((dfTrkAB * dfTrkAB) + (dhTrkAB * dhTrkAB));
 
         // clear vectors for checking cluster keys
-        clustKeysA.clear();
-        clustKeysB.clear();
+        vecClustKeysA.clear();
+        vecClustKeysB.clear();
 
         // loop over clusters from track A
         auto seedTpcA = trackA -> get_tpc_seed();
         if (seedTpcA) {
           for (auto local_iterA = seedTpcA -> begin_cluster_keys(); local_iterA != seedTpcA -> end_cluster_keys(); ++local_iterA) {
             TrkrDefs::cluskey cluster_keyA = *local_iterA;
-            clustKeysA.push_back(cluster_keyA);
+            vecClustKeysA.push_back(cluster_keyA);
           }
         }
 
@@ -332,14 +329,14 @@ namespace SColdQcdCorrelatorAnalysis {
         if (seedTpcB) {
           for (auto local_iterB = seedTpcB -> begin_cluster_keys(); local_iterB != seedTpcB -> end_cluster_keys(); ++local_iterB) {
             TrkrDefs::cluskey cluster_keyB = *local_iterB;
-            clustKeysB.push_back(cluster_keyB);
+            vecClustKeysB.push_back(cluster_keyB);
           }
         }
 
         // calculate no. of same cluster keys
         uint64_t nSameKey = 0;
-        for (auto keyA : clustKeysA) {
-          for (auto keyB : clustKeysB) {
+        for (auto keyA : vecClustKeysA) {
+          for (auto keyB : vecClustKeysB) {
             if (keyA == keyB) {
               ++nSameKey;
               break;
@@ -348,8 +345,8 @@ namespace SColdQcdCorrelatorAnalysis {
         }  // end cluster key A loop
 /*
         cout << "CHECK: nSameKey   = " << nSameKey          << "\n"
-             << "       nClustKeyA = " << clustKeysA.size() << "\n"
-             << "       nClustKeyB = " << clustKeysB.size()
+             << "       nClustKeyA = " << vecClustKeysA.size() << "\n"
+             << "       nClustKeyB = " << vecClustKeysB.size()
              << endl;
 */
 
@@ -390,13 +387,13 @@ namespace SColdQcdCorrelatorAnalysis {
         vecTrackPairLeaves[33] = (float) trkClustInttB;
         vecTrackPairLeaves[34] = (float) trkClustTpcA;
         vecTrackPairLeaves[35] = (float) trkClustTpcB;
-        vecTrackPairLeaves[36] = (float) clustKeysA.size();
-        vecTrackPairLeaves[37] = (float) clustKeysB.size();
+        vecTrackPairLeaves[36] = (float) vecClustKeysA.size();
+        vecTrackPairLeaves[37] = (float) vecClustKeysB.size();
         vecTrackPairLeaves[38] = (float) nSameKey;
         vecTrackPairLeaves[39] = (float) drTrkAB;
 
         // fill track pair tuple
-        m_ntWeirdTracks -> Fill(vecTrackPairLeaves.data());
+        m_ntTrackPairs -> Fill(vecTrackPairLeaves.data());
 
       }  // end 2nd track loop
     }  // end track loop
