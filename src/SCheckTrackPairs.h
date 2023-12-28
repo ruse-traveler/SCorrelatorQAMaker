@@ -34,8 +34,8 @@
 #include <trackbase_historic/TrackAnalysisUtils.h>
 // analysis utilities
 #include "SBaseQAPlugin.h"
-#include "/sphenix/user/danderson/eec/SCorrelatorUtilities/SCorrelatorUtilities.TrkTools.h"
-#include "/sphenix/user/danderson/eec/SCorrelatorUtilities/SCorrelatorUtilities.Constants.h"
+#include "/sphenix/user/danderson/eec/SCorrelatorUtilities/TrkTools.h"
+#include "/sphenix/user/danderson/eec/SCorrelatorUtilities/Constants.h"
 
 // make common namespaces implicit
 using namespace std;
@@ -303,12 +303,6 @@ namespace SColdQcdCorrelatorAnalysis {
             }
           }  // end cluster key B loop
         }  // end cluster key A loop
-/*
-        cout << "CHECK: nSameKey   = " << nSameKey          << "\n"
-             << "       nClustKeyA = " << m_vecClustKeysA.size() << "\n"
-             << "       nClustKeyB = " << m_vecClustKeysB.size()
-             << endl;
-*/
 
         // set tuple leaves
         m_vecTrackPairLeaves[0]  = (float) trkInfoA.id;
