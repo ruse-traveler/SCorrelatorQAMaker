@@ -81,7 +81,7 @@ namespace SColdQcdCorrelatorAnalysis {
       TDirectory* m_outDir  = NULL;
 
       // atomic members
-      bool     m_isDebugOn   = "";
+      bool     m_isDebugOn   = false;
       string   m_outFileName = "";
       string   m_outDirName  = "";
       uint16_t m_verbosity   = 0;

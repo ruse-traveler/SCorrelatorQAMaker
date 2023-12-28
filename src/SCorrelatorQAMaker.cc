@@ -14,7 +14,6 @@
 #include "SCorrelatorQAMaker.h"
 
 using namespace std;
-using namespace findNode;
 
 
 
@@ -34,6 +33,33 @@ namespace SColdQcdCorrelatorAnalysis {
     delete m_checkTrackPairs;
 
   }  // end dtor
+
+
+
+  // global setters -----------------------------------------------------------
+
+  void SCorrelatorQAMaker::SetGlobalDebug(const bool debug) {
+
+    m_checkTrackPairs -> SetDebug(debug);
+    return;
+
+  }  // end 'SetGlobalDebug(bool)'
+
+
+  void SCorrelatorQAMaker::SetGlobalOutFile(const string sOutFile) {
+
+    m_checkTrackPairs -> SetOutFile(sOutFile);
+    return;
+
+  }  // end 'SetGlobalOutFile(string)'
+
+
+  void SCorrelatorQAMaker::SetGlobalVerbosity(const int verbosity) {
+
+    m_checkTrackPairs -> SetVerbosity(verbosity);
+    return;
+
+  }  // end 'SetGlobalVerbosity(int)'
 
 }  // end SColdQcdCorrelatorAnalysis namespace
 

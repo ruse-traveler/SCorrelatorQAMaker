@@ -67,7 +67,7 @@ namespace SColdQcdCorrelatorAnalysis {
 
   // SCheckTrackPairs definition ----------------------------------------------
 
-  class SCheckTrackPairs : public SubsysReco, SBaseQAPlugin<SCheckTrackPairsConfig> {
+  class SCheckTrackPairs : public SubsysReco, public SBaseQAPlugin<SCheckTrackPairsConfig> {
 
     public:
 

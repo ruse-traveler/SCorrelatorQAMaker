@@ -11,6 +11,8 @@
 #ifndef SCORRELATORQAMAKER_H
 #define SCORRELATORQAMAKER_H
 
+// c++ utilities
+#include <string>
 // plugin definitions
 #include "SCheckTrackPairs.h"
 
@@ -29,6 +31,11 @@ namespace SColdQcdCorrelatorAnalysis {
       // ctor/dtor
       SCorrelatorQAMaker();
       ~SCorrelatorQAMaker();
+
+      // global setters
+      void SetGlobalDebug(const bool debug);
+      void SetGlobalOutFile(const string sOutFile);
+      void SetGlobalVerbosity(const int verbosity);
 
       // plugin accessors
       SCheckTrackPairs* CheckTrackPairs() {return m_checkTrackPairs;}
