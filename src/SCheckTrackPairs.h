@@ -72,7 +72,7 @@ namespace SColdQcdCorrelatorAnalysis {
     public:
 
       // ctor/dtor
-      SCheckTrackPairs(const string& name) : SubsysReco(name) {};
+      SCheckTrackPairs(const string& name = "CheckTrackPairs") : SubsysReco(name) {};
       ~SCheckTrackPairs() {};
 
       // F4A methods
