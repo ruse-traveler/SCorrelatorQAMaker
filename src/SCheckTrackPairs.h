@@ -71,6 +71,10 @@ namespace SColdQcdCorrelatorAnalysis {
 
     public:
 
+      // ctor/dtor
+      SCheckTrackPairs(const string& name) : SubsysReco(name) {};
+      ~SCheckTrackPairs() {};
+
       // F4A methods
       int Init(PHCompositeNode*)          override;
       int process_event(PHCompositeNode*) override;
@@ -121,6 +125,7 @@ namespace SColdQcdCorrelatorAnalysis {
   int SCheckTrackPairs::End(PHCompositeNode* topNode) {
 
     SaveOutput();
+    CloseOutput();
     return Fun4AllReturnCodes::EVENT_OK;
 
   }  // end 'End(PHCompositeNode*)'

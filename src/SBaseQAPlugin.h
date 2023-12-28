@@ -51,7 +51,9 @@ namespace SColdQcdCorrelatorAnalysis {
         // check output file and create if needed
         const bool doesFileExist = gSystem -> AccessPathName(m_outFileName.data());
         if (!doesFileExist) {
-          m_outFile = new TFile(m_outFileName.data(), "create");
+          m_outFile = new TFile(m_outFileName.data(), "recreate");
+        } else {
+          m_outFile = new TFile(m_outFileName.data(), "update");
         }
 
         // create output directory if needed
