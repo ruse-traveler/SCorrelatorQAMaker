@@ -9,7 +9,8 @@
 # -----------------------------------------------------------------------------
 
 if [ -z "$1" ]; then
-  ./autogen.sh --prefix=$MYINSTALL
+  cd build
+  ../autogen.sh --prefix=$MYINSTALL
   make -j 4
   make install
 elif [ "$1" == "-r" ]; then
