@@ -13,6 +13,7 @@
 
 // c++ utilities
 #include <string>
+#include <optional>
 // plugin definitions
 #include "SCheckTrackPairs.h"
 
@@ -29,13 +30,16 @@ namespace SColdQcdCorrelatorAnalysis {
     public:
 
       // ctor/dtor
-      SCorrelatorQAMaker();
+      SCorrelatorQAMaker() {};
       ~SCorrelatorQAMaker();
 
       // global setters
       void SetGlobalDebug(const bool debug);
       void SetGlobalOutFile(const string sOutFile);
       void SetGlobalVerbosity(const int verbosity);
+
+      // plugin initializers
+      template <typename T> void InitPlugin(const T& config, optional<string> name);
 
       // plugin accessors
       SCheckTrackPairs* CheckTrackPairs() {return m_checkTrackPairs;}

@@ -10,6 +10,8 @@
 
 #define SCORRELATORQAMAKER_CC
 
+// c++ utilities
+#include <cassert>
 // user includes
 #include "SCorrelatorQAMaker.h"
 
@@ -20,13 +22,6 @@ using namespace std;
 namespace SColdQcdCorrelatorAnalysis {
 
   // ctor/dtor ----------------------------------------------------------------
-
-  SCorrelatorQAMaker::SCorrelatorQAMaker() {
-
-    m_checkTrackPairs = new SCheckTrackPairs();
-
-  }  // end ctor
-
 
   SCorrelatorQAMaker::~SCorrelatorQAMaker() {
 
@@ -60,6 +55,24 @@ namespace SColdQcdCorrelatorAnalysis {
     return;
 
   }  // end 'SetGlobalVerbosity(int)'
+
+
+
+  // plugin initializers ------------------------------------------------------
+
+  // specialization for SCheckTrackPairs
+  template <> void SCorrelatorQAMaker::InitPlugin(const SCheckTrackPairsConfig& config, optional<string> name) {
+
+    // throw error if no name provided
+    if (!name.has_value()) {
+      assert(name.has_value());
+    }
+
+    m_checkTrackPairs = new SCheckTrackPairs(name.value());
+    m_checkTrackPairs -> SetConfig(config);
+    return;
+
+  }  // end 'InitPlugin(SCheckTrackPairs, optional<string>)'
 
 }  // end SColdQcdCorrelatorAnalysis namespace
 

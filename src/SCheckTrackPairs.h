@@ -105,6 +105,7 @@ namespace SColdQcdCorrelatorAnalysis {
 
   int SCheckTrackPairs::Init(PHCompositeNode* topNode) {
 
+    InitOutput();
     InitTuples();
     return Fun4AllReturnCodes::EVENT_OK;
 

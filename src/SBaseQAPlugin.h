@@ -38,7 +38,7 @@ namespace SColdQcdCorrelatorAnalysis {
       void SetOutFile(const string file)     {m_outFileName = file;}
       void SetOutDir(const string name)      {m_outDirName  = name;}
       void SetVerbosity(const uint16_t verb) {m_verbosity   = verb;}
-      void SetConfig(Config& cfg)            {m_config      = cfg;}
+      void SetConfig(const Config& cfg)      {m_config      = cfg;}
 
       // output getters
       TFile*      GetOutFile() {return m_outFile;}
