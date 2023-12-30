@@ -35,6 +35,7 @@
 // user includes
 #include "/sphenix/user/danderson/eec/SCorrelatorQAMaker/src/SCorrelatorQAMaker.h"
 #include "/sphenix/user/danderson/eec/SCorrelatorQAMaker/src/SCheckTrackPairs.h"
+#include "/sphenix/user/danderson/eec/SCorrelatorQAMaker/src/SMakeTrkQATuples.h"
 #include "/sphenix/user/danderson/eec/SCorrelatorUtilities/TrkTools.h"
 
 using namespace std;
@@ -64,7 +65,8 @@ static const vector<string> VecOutFilesDefault = {
   "test.root"
 };
 static const vector<string> VecOutDirDefault = {
-  "CheckTrackPairs"
+  "CheckTrackPairs",
+  "TrackQATuples"
 };
 
 // other default arguments
@@ -117,6 +119,15 @@ void Fun4All_RunCorrelatorQAModules(
 
   // SCheckTrackPairs configuration
   SCheckTrackPairsConfig cfg_checkTrackPairs = {
+    .doDcaSigCut = false,
+    .requireSiSeed = true,
+    .useOnlyPrimVtx = true,
+    .minAccept = cfg_trkMin,
+    .maxAccept = cfg_trkMax
+  };
+
+  // SMakeTrkQATuples configuration
+  SMakeTrkQATuplesConfig cfg_makeTrackQATuples = {
     .doDcaSigCut = false,
     .requireSiSeed = true,
     .useOnlyPrimVtx = true,
@@ -180,16 +191,19 @@ void Fun4All_RunCorrelatorQAModules(
     }
   }
 
-  // register qa maker --------------------------------------------------------
+  // register qa makers -------------------------------------------------------
 
   // instantiate qa maker and plugins
   SCorrelatorQAMaker* maker = new SCorrelatorQAMaker();
-  maker     -> InitPlugin(cfg_checkTrackPairs, "CheckTrackPairs");
+  maker     -> InitPlugin(cfg_checkTrackPairs,   "CheckTrackPairs");
+  maker     -> InitPlugin(cfg_makeTrackQATuples, "MakeTrackQATuples");
   maker     -> SetGlobalOutFile(vecOutFiles.at(0));
   maker     -> SetGlobalVerbosity(verbosity);
   maker     -> SetGlobalDebug(debug);
-  maker     -> CheckTrackPairs() -> SetOutDir(vecOutDir.at(0));
+  maker     -> CheckTrackPairs()   -> SetOutDir(vecOutDir.at(0));
+  maker     -> MakeTrackQATuples() -> SetOutDir(vecOutDir.at(1));
   ffaServer -> registerSubsystem(maker -> CheckTrackPairs());
+  ffaServer -> registerSubsystem(maker -> MakeTrackQATuples());
 
   // run and close f4a --------------------------------------------------------
 

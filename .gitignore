@@ -10,4 +10,5 @@ reference/*
 !src/SCorrelatorQAMaker.h
 !src/SBaseQAPlugin.h
 !src/SCheckTrackPairs.h
+!src/SMakeTrkQATuples.h
 !src/SCorrelatorQAMakerLinkDef.h
