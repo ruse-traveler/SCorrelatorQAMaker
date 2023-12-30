@@ -109,7 +109,7 @@ namespace SColdQcdCorrelatorAnalysis {
     InitTuples();
     return Fun4AllReturnCodes::EVENT_OK;
 
-  }  // end 'Init(PHCompositenNode*)'
+  }  // end 'Init(PHCompositeNode*)'
 
 
 
@@ -239,6 +239,10 @@ namespace SColdQcdCorrelatorAnalysis {
 
 
   void SCheckTrackPairs::DoDoubleTrackLoop(PHCompositeNode* topNode) {
+
+    if (m_isDebugOn && (m_verbosity > 2)) {
+      cout << "SColdQcdCorrelatorAnalysis::SCheckTrackPairs::DoDoubleTrackLoop(): looping over all pairs of tracks." << endl;
+    }
 
     // loop over tracks
     SvtxTrack*    trackA  = NULL;
