@@ -12,6 +12,7 @@
 
 // c++ utilities
 #include <cassert>
+#include <optional>
 // user includes
 #include "SCorrelatorQAMaker.h"
 
