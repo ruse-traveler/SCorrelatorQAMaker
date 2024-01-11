@@ -183,7 +183,7 @@ namespace SColdQcdCorrelatorAnalysis {
     }
 
     // grab event info
-    EvtInfo evtInfo(topNode, m_cfg.isSimEvt, m_cfg.isEmbed, {1});
+    EvtInfo evtInfo(topNode, m_config.isSimEvt, m_config.isEmbed, {1});
 
     // loop over tracks
     SvtxTrack*    track  = NULL;
