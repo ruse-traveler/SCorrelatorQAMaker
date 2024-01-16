@@ -53,7 +53,6 @@ namespace SColdQcdCorrelatorAnalysis {
 
   struct SMakeTrkQATuplesConfig {
 
-    bool    isSimEvt;
     bool    isEmbed;
     bool    doDcaSigCut;
     bool    requireSiSeed;
@@ -146,12 +145,8 @@ namespace SColdQcdCorrelatorAnalysis {
     AddLeavesToVector<GenInfo>(vecTrkLeaves);
     AddLeavesToVector<TrkInfo>(vecTrkLeaves);
 
-    cout << "CHECK: num leaves = " << vecTrkLeaves.size() << endl;
-
     // compress leaves into a color-separated list
     string argTrkLeaves = FlattenLeafList(vecTrkLeaves);
-
-    cout << "CHECK list = " << argTrkLeaves << endl;
 
     // create tuple and return
     m_ntTrackQA = new TNtuple("ntTrackQA", "Track QA", argTrkLeaves.data());
@@ -184,7 +179,7 @@ namespace SColdQcdCorrelatorAnalysis {
 
     // grab event info
     //   FIXME add in subevent selection
-    RecoInfo recInfo(topNode);
+    RecoInfo recInfo(topNode)
     GenInfo  genInfo(topNode, m_config.isEmbed, {2});
 
     // loop over tracks
