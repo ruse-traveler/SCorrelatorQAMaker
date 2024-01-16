@@ -11,4 +11,5 @@ reference/*
 !src/SBaseQAPlugin.h
 !src/SCheckTrackPairs.h
 !src/SMakeTrkQATuples.h
+!src/SMakeClustQATree.h
 !src/SCorrelatorQAMakerLinkDef.h

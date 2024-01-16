@@ -19,6 +19,7 @@ copy_to   = "/sphenix/user/danderson/sphenix/analysis/AndersonAnalysisModules/Co
 to_copy = [
   "README.md",
   "Fun4All_RunCorrelatorQAModules.C",
+  "RunFun4AllCorrelatorQAModules.rb",
   "scripts/copy-to-analysis.rb",
   "scripts/wipe-source.sh",
   "scripts/RunSigmaDcaCalculation.sh",
@@ -29,6 +30,8 @@ to_copy = [
   "src/SCorrelatorQAMakerLinkDef.h",
   "src/SBaseQAPlugin.h",
   "src/SCheckTrackPairs.h",
+  "src/SMakeTrkQATuples.h",
+  "src/SMakeClustQATree.h",
   "src/autogen.sh",
   "src/configure.ac",
   "src/Makefile.am",

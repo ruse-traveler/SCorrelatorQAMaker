@@ -17,6 +17,7 @@
 // plugin definitions
 #include "SCheckTrackPairs.h"
 #include "SMakeTrkQATuples.h"
+#include "SMakeClustQATree.h"
 
 using namespace std;
 
@@ -45,12 +46,14 @@ namespace SColdQcdCorrelatorAnalysis {
       // plugin accessors
       SCheckTrackPairs* CheckTrackPairs()   {return m_checkTrackPairs;}
       SMakeTrkQATuples* MakeTrackQATuples() {return m_makeTrackQATuples;}
+      SMakeClustQATree* MakeClustQATree()   {return m_makeClustQATree;}
 
     private:
 
       // plugins
       SCheckTrackPairs* m_checkTrackPairs;
       SMakeTrkQATuples* m_makeTrackQATuples;
+      SMakeClustQATree* m_makeClustQATree;
 
   };
 

@@ -28,6 +28,7 @@ namespace SColdQcdCorrelatorAnalysis {
 
     delete m_checkTrackPairs;
     delete m_makeTrackQATuples;
+    delete m_makeClustQATree;
 
   }  // end dtor
 
@@ -39,6 +40,7 @@ namespace SColdQcdCorrelatorAnalysis {
 
     m_checkTrackPairs   -> SetDebug(debug);
     m_makeTrackQATuples -> SetDebug(debug);
+    m_makeClustQATree   -> SetDebug(debug);
     return;
 
   }  // end 'SetGlobalDebug(bool)'
@@ -49,6 +51,7 @@ namespace SColdQcdCorrelatorAnalysis {
 
     m_checkTrackPairs   -> SetOutFile(sOutFile);
     m_makeTrackQATuples -> SetOutFile(sOutFile);
+    m_makeClustQATree   -> SetOutFile(sOutFile);
     return;
 
   }  // end 'SetGlobalOutFile(string)'
@@ -59,6 +62,7 @@ namespace SColdQcdCorrelatorAnalysis {
 
     m_checkTrackPairs   -> SetVerbosity(verbosity);
     m_makeTrackQATuples -> SetVerbosity(verbosity);
+    m_makeClustQATree   -> SetVerbosity(verbosity);
     return;
 
   }  // end 'SetGlobalVerbosity(int)'

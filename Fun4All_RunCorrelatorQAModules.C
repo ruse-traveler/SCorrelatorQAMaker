@@ -36,7 +36,9 @@
 #include "/sphenix/user/danderson/eec/SCorrelatorQAMaker/src/SCorrelatorQAMaker.h"
 #include "/sphenix/user/danderson/eec/SCorrelatorQAMaker/src/SCheckTrackPairs.h"
 #include "/sphenix/user/danderson/eec/SCorrelatorQAMaker/src/SMakeTrkQATuples.h"
+#include "/sphenix/user/danderson/eec/SCorrelatorQAMaker/src/SMakeClustQATree.h"
 #include "/sphenix/user/danderson/eec/SCorrelatorUtilities/TrkTools.h"
+#include "/sphenix/user/danderson/eec/SCorrelatorUtilities/CalTools.h"
 
 using namespace std;
 using namespace SColdQcdCorrelatorAnalysis;
@@ -63,11 +65,13 @@ static const vector<string> VecInFilesDefault = {
 };
 static const vector<string> VecOutFilesDefault = {
   "test.root",
-  "test1.root"
+  "test1.root",
+  "test2.root"
 };
 static const vector<string> VecOutDirDefault = {
   "CheckTrackPairs",
-  "TrackQATuples"
+  "TrackQATuples",
+  "ClustQATree"
 };
 
 // other default arguments
@@ -118,6 +122,16 @@ void Fun4All_RunCorrelatorQAModules(
   cfg_trkMax.ptErr      = 0.5;
   cfg_trkMax.quality    = 10.;
 
+  // clust minima
+  ClustInfo cfg_clustMin;
+  cfg_clustMin.ene = 0.1;
+  cfg_clustMin.eta = -1.1;
+
+  // clust maxima
+  ClustInfo cfg_clustMax;
+  cfg_clustMin.ene = 9999.;
+  cfg_clustMin.eta = 1.1;
+
   // SCheckTrackPairs configuration
   SCheckTrackPairsConfig cfg_checkTrackPairs = {
     .doDcaSigCut    = false,
@@ -135,6 +149,13 @@ void Fun4All_RunCorrelatorQAModules(
     .useOnlyPrimVtx = true,
     .minAccept      = cfg_trkMin,
     .maxAccept      = cfg_trkMax
+  };
+
+  // SMakeClustQATree configuration
+  SMakeClustQATreeConfig cfg_makeClustQATree = {
+    .isEmbed   = true,
+    .minAccept = cfg_clustMin,
+    .maxAccept = cfg_clustMax
   };
 
   // initialize f4a -----------------------------------------------------------
@@ -199,15 +220,19 @@ void Fun4All_RunCorrelatorQAModules(
   SCorrelatorQAMaker* maker = new SCorrelatorQAMaker();
   maker     -> InitPlugin(cfg_checkTrackPairs,   "CheckTrackPairs");
   maker     -> InitPlugin(cfg_makeTrackQATuples, "MakeTrackQATuples");
-  //maker     -> SetGlobalOutFile(vecOutFiles.at(0));
+  maker     -> InitPlugin(cfg_makeClustQATree,   "MakeClustQATree");
+  //maker     -> SetGlobalOutFile(vecOutFiles.at(0));  // FIXME use one file once file opening is fixed
   maker     -> CheckTrackPairs()   -> SetOutFile(vecOutFiles.at(0));
   maker     -> MakeTrackQATuples() -> SetOutFile(vecOutFiles.at(1));
+  maker     -> MakeClustQATree()   -> SetOutFile(vecOutFiles.at(2));
   maker     -> SetGlobalVerbosity(verbosity);
   maker     -> SetGlobalDebug(debug);
   maker     -> CheckTrackPairs()   -> SetOutDir(vecOutDir.at(0));
   maker     -> MakeTrackQATuples() -> SetOutDir(vecOutDir.at(1));
+  maker     -> MakeClustQATree()   -> SetOutDir(vecOutDir.at(2));
   ffaServer -> registerSubsystem(maker -> CheckTrackPairs());
   ffaServer -> registerSubsystem(maker -> MakeTrackQATuples());
+  ffaServer -> registerSubsystem(maker -> MakeClustQATree());
 
   // run and close f4a --------------------------------------------------------
 
