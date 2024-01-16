@@ -4,8 +4,7 @@
 // 12.29.2023
 //
 // SCorrelatorQAMaker plugin to produce QA tuples
-// for tracks, calo clusters, and particle flow
-// objects.
+// for tracks.
 // ----------------------------------------------------------------------------
 
 #ifndef SMAKETRKQATUPLES_H
@@ -70,6 +69,7 @@ namespace SColdQcdCorrelatorAnalysis {
 
 
   // SMakeTrkQATuples definition ----------------------------------------------
+
   class SMakeTrkQATuples : public SubsysReco, public SBaseQAPlugin<SMakeTrkQATuplesConfig> {
 
     public:
@@ -97,7 +97,7 @@ namespace SColdQcdCorrelatorAnalysis {
       // root members
       TNtuple* m_ntTrackQA;
 
-  };  // end SCheckTrackPairs
+  };  // end SMakeTrkQATuples
 
 
 
@@ -174,7 +174,7 @@ namespace SColdQcdCorrelatorAnalysis {
   void SMakeTrkQATuples::DoTrackLoop(PHCompositeNode* topNode) {
 
     if (m_isDebugOn && (m_verbosity > 2)) {
-      cout << "SColdQcdCorrelatorAnalysis::SMakeTrkQATuples::DoTrackLoop(): looping over tracks." << endl;
+      cout << "SColdQcdCorrelatorAnalysis::SMakeTrkQATuples::DoTrackLoop(PHCompositeNode*): looping over tracks." << endl;
     }
 
     // grab event info
