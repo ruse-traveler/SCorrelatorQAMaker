@@ -183,8 +183,9 @@ namespace SColdQcdCorrelatorAnalysis {
     }
 
     // grab event info
+    //   FIXME add in subevent selection
     RecoInfo recInfo(topNode);
-    GenInfo  genInfo(topNode, m_config.isEmbed, {1});
+    GenInfo  genInfo(topNode, m_config.isEmbed, {2});
 
     // loop over tracks
     SvtxTrack*    track  = NULL;
