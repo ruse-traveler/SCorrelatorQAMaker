@@ -62,7 +62,8 @@ static const vector<string> VecInFilesDefault = {
   "DST_TRUTH_pythia8_Jet10_sHijing_pAu_0_10fm_500kHz_bkg_0_10fm-0000000009-00009.root"
 };
 static const vector<string> VecOutFilesDefault = {
-  "test.root"
+  "test.root",
+  "test1.root"
 };
 static const vector<string> VecOutDirDefault = {
   "CheckTrackPairs",
@@ -119,20 +120,21 @@ void Fun4All_RunCorrelatorQAModules(
 
   // SCheckTrackPairs configuration
   SCheckTrackPairsConfig cfg_checkTrackPairs = {
-    .doDcaSigCut = false,
-    .requireSiSeed = true,
+    .doDcaSigCut    = false,
+    .requireSiSeed  = true,
     .useOnlyPrimVtx = true,
-    .minAccept = cfg_trkMin,
-    .maxAccept = cfg_trkMax
+    .minAccept      = cfg_trkMin,
+    .maxAccept      = cfg_trkMax
   };
 
   // SMakeTrkQATuples configuration
   SMakeTrkQATuplesConfig cfg_makeTrackQATuples = {
-    .doDcaSigCut = false,
-    .requireSiSeed = true,
+    .isEmbed        = true,
+    .doDcaSigCut    = false,
+    .requireSiSeed  = true,
     .useOnlyPrimVtx = true,
-    .minAccept = cfg_trkMin,
-    .maxAccept = cfg_trkMax
+    .minAccept      = cfg_trkMin,
+    .maxAccept      = cfg_trkMax
   };
 
   // initialize f4a -----------------------------------------------------------
@@ -197,7 +199,9 @@ void Fun4All_RunCorrelatorQAModules(
   SCorrelatorQAMaker* maker = new SCorrelatorQAMaker();
   maker     -> InitPlugin(cfg_checkTrackPairs,   "CheckTrackPairs");
   maker     -> InitPlugin(cfg_makeTrackQATuples, "MakeTrackQATuples");
-  maker     -> SetGlobalOutFile(vecOutFiles.at(0));
+  //maker     -> SetGlobalOutFile(vecOutFiles.at(0));
+  maker     -> CheckTrackPairs()   -> SetOutFile(vecOutFiles.at(0));
+  maker     -> MakeTrackQATuples() -> SetOutFile(vecOutFiles.at(1));
   maker     -> SetGlobalVerbosity(verbosity);
   maker     -> SetGlobalDebug(debug);
   maker     -> CheckTrackPairs()   -> SetOutDir(vecOutDir.at(0));
