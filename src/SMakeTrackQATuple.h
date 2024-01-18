@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------------
-// 'SMakeTrkQATuples.h'
+// 'SMakeTrackQATuple.h'
 // Derek Anderson
 // 12.29.2023
 //
@@ -7,8 +7,8 @@
 // for tracks.
 // ----------------------------------------------------------------------------
 
-#ifndef SMAKETRKQATUPLES_H
-#define SMAKETRKQATUPLES_H
+#ifndef SMAKETRACKQATUPLE_H
+#define SMAKETRACKQATUPLE_H
 
 // c++ utilities
 #include <string>
@@ -48,9 +48,9 @@ using namespace SColdQcdCorrelatorAnalysis::SCorrelatorUtilities;
 
 namespace SColdQcdCorrelatorAnalysis {
 
-  // SMakeTrkQATuplesConfig definition ----------------------------------------
+  // SMakeTrackQATupleConfig definition ----------------------------------------
 
-  struct SMakeTrkQATuplesConfig {
+  struct SMakeTrackQATupleConfig {
 
     bool    isEmbed;
     bool    doDcaSigCut;
@@ -64,19 +64,19 @@ namespace SColdQcdCorrelatorAnalysis {
     pair<float, float> ptFitMax;
     pair<TF1*,  TF1*>  fSigDca;
 
-  };  // end SMakeTrkQATuplesConfig
+  };  // end SMakeTrackQATupleConfig
 
 
 
-  // SMakeTrkQATuples definition ----------------------------------------------
+  // SMakeTrackQATuple definition ----------------------------------------------
 
-  class SMakeTrkQATuples : public SubsysReco, public SBaseQAPlugin<SMakeTrkQATuplesConfig> {
+  class SMakeTrackQATuple : public SubsysReco, public SBaseQAPlugin<SMakeTrackQATupleConfig> {
 
     public:
 
       // ctor/dtor
-      SMakeTrkQATuples(const string& name = "TrackQATuples") : SubsysReco(name) {};
-      ~SMakeTrkQATuples() {};
+      SMakeTrackQATuple(const string& name = "TrackQATuple") : SubsysReco(name) {};
+      ~SMakeTrackQATuple() {};
 
       // F4A methods
       int Init(PHCompositeNode*)          override;
@@ -86,7 +86,7 @@ namespace SColdQcdCorrelatorAnalysis {
     private:
 
       // internal methods
-      void InitTuples();
+      void InitTuple();
       void SaveOutput();
       void DoTrackLoop(PHCompositeNode* topNode);
       bool IsGoodTrack(SvtxTrack* track, PHCompositeNode* topNode);
@@ -97,23 +97,23 @@ namespace SColdQcdCorrelatorAnalysis {
       // root members
       TNtuple* m_ntTrackQA;
 
-  };  // end SMakeTrkQATuples
+  };  // end SMakeTrackQATuple
 
 
 
-  // SMakeTrkQATuples public methods ------------------------------------------
+  // SMakeTrackQATuple public methods ------------------------------------------
 
-  int SMakeTrkQATuples::Init(PHCompositeNode* topNode) {
+  int SMakeTrackQATuple::Init(PHCompositeNode* topNode) {
 
     InitOutput();
-    InitTuples();
+    InitTuple();
     return Fun4AllReturnCodes::EVENT_OK;
 
   }  // end 'Init(PHCompositeNode*)'
 
 
 
-  int SMakeTrkQATuples::process_event(PHCompositeNode* topNode) {
+  int SMakeTrackQATuple::process_event(PHCompositeNode* topNode) {
 
     DoTrackLoop(topNode);
     return Fun4AllReturnCodes::EVENT_OK;
@@ -122,7 +122,7 @@ namespace SColdQcdCorrelatorAnalysis {
 
 
 
-  int SMakeTrkQATuples::End(PHCompositeNode* topNode) {
+  int SMakeTrackQATuple::End(PHCompositeNode* topNode) {
 
     SaveOutput();
     CloseOutput();
@@ -132,12 +132,12 @@ namespace SColdQcdCorrelatorAnalysis {
 
 
 
-  // SMakeTrkQATuples internal methods -----------------------------------------
+  // SMakeTrackQATuple internal methods -----------------------------------------
 
-  void SMakeTrkQATuples::InitTuples() {
+  void SMakeTrackQATuple::InitTuple() {
 
     if (m_isDebugOn && (m_verbosity > 2)) {
-      cout << "SColdQcdCorrelatorAnalysis::SMakeTrkQATuples::InitTuples(): initializing output tuple." << endl;
+      cout << "SColdQcdCorrelatorAnalysis::SMakeTrackQATuple::InitTuple(): initializing output tuple." << endl;
     }
 
     // create leaf list for event and track info
@@ -153,14 +153,14 @@ namespace SColdQcdCorrelatorAnalysis {
     m_vecTrackLeaves.reserve(vecTrkLeaves.size());
     return;
 
-  }  // end 'InitTuples()'
+  }  // end 'InitTuple()'
 
 
 
-  void SMakeTrkQATuples::SaveOutput() {
+  void SMakeTrackQATuple::SaveOutput() {
 
     if (m_isDebugOn && (m_verbosity > 2)) {
-      cout << "SColdQcdCorrelatorAnalysis::SMakeTrkQATuples::SaveOutput(): saving output." << endl;
+      cout << "SColdQcdCorrelatorAnalysis::SMakeTrackQATuple::SaveOutput(): saving output." << endl;
     }
 
     m_outDir    -> cd();
@@ -171,10 +171,10 @@ namespace SColdQcdCorrelatorAnalysis {
 
 
 
-  void SMakeTrkQATuples::DoTrackLoop(PHCompositeNode* topNode) {
+  void SMakeTrackQATuple::DoTrackLoop(PHCompositeNode* topNode) {
 
     if (m_isDebugOn && (m_verbosity > 2)) {
-      cout << "SColdQcdCorrelatorAnalysis::SMakeTrkQATuples::DoTrackLoop(PHCompositeNode*): looping over tracks." << endl;
+      cout << "SColdQcdCorrelatorAnalysis::SMakeTrackQATuple::DoTrackLoop(PHCompositeNode*): looping over tracks." << endl;
     }
 
     // grab event info
@@ -276,11 +276,11 @@ namespace SColdQcdCorrelatorAnalysis {
 
 
 
-  bool SMakeTrkQATuples::IsGoodTrack(SvtxTrack* track, PHCompositeNode* topNode) {
+  bool SMakeTrackQATuple::IsGoodTrack(SvtxTrack* track, PHCompositeNode* topNode) {
 
     // print debug statement
     if (m_isDebugOn && (m_verbosity > 4)) {
-      cout << "SMakeTrkQATuples::IsGoodTrack(SvtxTrack*, PHCompositeNode*) Checking if track is good..." << endl;
+      cout << "SMakeTrackQATuple::IsGoodTrack(SvtxTrack*, PHCompositeNode*) Checking if track is good..." << endl;
     }
 
     // grab track info

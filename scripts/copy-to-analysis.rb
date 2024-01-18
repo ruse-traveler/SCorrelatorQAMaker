@@ -30,7 +30,7 @@ to_copy = [
   "src/SCorrelatorQAMakerLinkDef.h",
   "src/SBaseQAPlugin.h",
   "src/SCheckTrackPairs.h",
-  "src/SMakeTrkQATuples.h",
+  "src/SMakeTrackQATuple.h",
   "src/SMakeClustQATree.h",
   "src/autogen.sh",
   "src/configure.ac",
