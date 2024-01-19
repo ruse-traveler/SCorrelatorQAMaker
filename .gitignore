@@ -9,6 +9,7 @@ reference/*
 !src/SCorrelatorQAMaker.cc
 !src/SCorrelatorQAMaker.h
 !src/SBaseQAPlugin.h
+!src/SCheckCstPairs.h
 !src/SCheckTrackPairs.h
 !src/SMakeTrackQATuple.h
 !src/SMakeClustQATree.h
