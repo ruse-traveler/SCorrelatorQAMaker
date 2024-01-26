@@ -34,9 +34,9 @@
 #include <trackbase_historic/TrackAnalysisUtils.h>
 // analysis utilities
 #include "SBaseQAPlugin.h"
-#include "/sphenix/user/danderson/eec/SCorrelatorUtilities/TrkTools.h"
-#include "/sphenix/user/danderson/eec/SCorrelatorUtilities/Constants.h"
-#include "/sphenix/user/danderson/eec/SCorrelatorUtilities/Interfaces.h"
+#include "/sphenix/user/danderson/install/include/scorrelatorutilities/TrkTools.h"
+#include "/sphenix/user/danderson/install/include/scorrelatorutilities/Constants.h"
+#include "/sphenix/user/danderson/install/include/scorrelatorutilities/Interfaces.h"
 
 // make common namespaces implicit
 using namespace std;
@@ -51,11 +51,12 @@ namespace SColdQcdCorrelatorAnalysis {
 
   struct SCheckTrackPairsConfig {
 
-    bool    doDcaSigCut;
-    bool    requireSiSeed;
-    bool    useOnlyPrimVtx;
-    TrkInfo minAccept;
-    TrkInfo maxAccept;
+    bool doDcaSigCut;
+    bool requireSiSeed;
+    bool useOnlyPrimVtx;
+
+    // track acceptance
+    pair<TrkInfo, TrkInfo> trkAccept;
 
     // for pt-dependent sigma cut
     pair<float, float> nSigCut;
@@ -358,7 +359,7 @@ namespace SColdQcdCorrelatorAnalysis {
 
     // check if seed is good & track is in acceptance
     const bool isSeedGood = IsGoodTrackSeed(track, m_config.requireSiSeed);
-    const bool isInAccept = IsInTrackAcceptance(info, m_config.minAccept, m_config.maxAccept);
+    const bool isInAccept = IsInAcceptance(info, m_config.trkAccept.first, m_config.trkAccept.second);
 
     // return overall goodness of track
     return (isFromPrimVtx && isInDcaSigma && isSeedGood && isInAccept);

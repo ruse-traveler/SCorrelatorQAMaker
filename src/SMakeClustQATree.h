@@ -13,6 +13,7 @@
 // c++ utilities
 #include <string>
 #include <vector>
+#include <utility>
 // root utilities
 #include <TF1.h>
 #include <TTree.h>
@@ -38,11 +39,11 @@
 #include <calotrigger/CaloTriggerInfo.h>
 // analysis utilities
 #include "SBaseQAPlugin.h"
-#include "/sphenix/user/danderson/eec/SCorrelatorUtilities/GenTools.h"
-#include "/sphenix/user/danderson/eec/SCorrelatorUtilities/EvtTools.h"
-#include "/sphenix/user/danderson/eec/SCorrelatorUtilities/CalTools.h"
-#include "/sphenix/user/danderson/eec/SCorrelatorUtilities/Constants.h"
-#include "/sphenix/user/danderson/eec/SCorrelatorUtilities/Interfaces.h"
+#include "/sphenix/user/danderson/install/include/scorrelatorutilities/GenTools.h"
+#include "/sphenix/user/danderson/install/include/scorrelatorutilities/EvtTools.h"
+#include "/sphenix/user/danderson/install/include/scorrelatorutilities/CalTools.h"
+#include "/sphenix/user/danderson/install/include/scorrelatorutilities/Constants.h"
+#include "/sphenix/user/danderson/install/include/scorrelatorutilities/Interfaces.h"
 
 // make common namespaces implicit
 using namespace std;
@@ -57,9 +58,10 @@ namespace SColdQcdCorrelatorAnalysis {
 
   struct SMakeClustQATreeConfig {
 
-    bool      isEmbed;
-    ClustInfo minAccept;
-    ClustInfo maxAccept;
+    bool isEmbed;
+
+    // cluster acceptance
+    pair<ClustInfo, ClustInfo> clustAccept;
 
   };  // end SMakeClustQATreeConfig
 
@@ -69,14 +71,23 @@ namespace SColdQcdCorrelatorAnalysis {
 
   struct SMakeClustQATreeOutput {
 
-    // event information
+    // event level info
     RecoInfo recInfo;
     GenInfo  genInfo;
 
-    // cluster information
+    // calo info
     vector<ClustInfo> emCalInfo;
     vector<ClustInfo> ihCalInfo;
     vector<ClustInfo> ohCalInfo;
+
+    void Reset() {
+      recInfo.Reset();
+      genInfo.Reset();
+      emCalInfo.clear();
+      ihCalInfo.clear();
+      ohCalInfo.clear();
+      return;
+    }
 
   };  // end SMakeClustQATreeOutput
 
@@ -102,7 +113,6 @@ namespace SColdQcdCorrelatorAnalysis {
       // internal methods
       void InitTree();
       void SaveOutput();
-      void ResetOutput();
       void DoClustLoop(PHCompositeNode* topNode, const string node);
       bool IsGoodCluster(const RawCluster* cluster);
 
@@ -130,10 +140,13 @@ namespace SColdQcdCorrelatorAnalysis {
 
   int SMakeClustQATree::process_event(PHCompositeNode* topNode) {
 
+    // make sure output container is empty
+    m_output.Reset();
+
     // grab event info
     //   FIXME add in subevent selection
-    RecoInfo recInfo(topNode);
-    GenInfo  genInfo(topNode, m_config.isEmbed, {2});
+    m_output.recInfo.SetInfo(topNode);
+    m_output.genInfo.SetInfo(topNode, m_config.isEmbed, {2});
 
     // grab cluster info
     DoClustLoop(topNode, "CLUSTER_CEMC");
@@ -142,7 +155,6 @@ namespace SColdQcdCorrelatorAnalysis {
 
     // fill output tree and reset
     m_tClustQA -> Fill();
-    ResetOutput();
     return Fun4AllReturnCodes::EVENT_OK;
 
   }  // end 'process_event(PHCompositeNode* topNode)'
@@ -167,11 +179,12 @@ namespace SColdQcdCorrelatorAnalysis {
       cout << "SColdQcdCorrelatorAnalysis::SMakeClustQATree::InitTree(): initializing output tree." << endl;
     }
 
+    // initialize tree
     m_tClustQA = new TTree("tClustQA", "Cluster QA");
     m_tClustQA -> SetBranchAddress("ClusterQA", &m_output);
     return;
 
-  }  // end 'InitTuples()'
+  }  // end 'InitTree()'
 
 
 
@@ -214,10 +227,10 @@ namespace SColdQcdCorrelatorAnalysis {
       if (!isGoodClust) continue;
 
       // grab cluster info
-      ClustInfo clustInfo(cluster, mapNodeOntoIndex[node]);
+      ClustInfo clustInfo(cluster, MapNodeOntoIndex[node]);
 
       // add to relevant list
-      switch (mapNodeOntoIndex[node]) {
+      switch (MapNodeOntoIndex[node]) {
 
         case Subsys::EMCal:
           m_output.emCalInfo.push_back(clustInfo);
@@ -242,23 +255,6 @@ namespace SColdQcdCorrelatorAnalysis {
 
 
 
-  void SMakeClustQATree::ResetOutput() {
-
-    if (m_isDebugOn && (m_verbosity > 4)) {
-      cout << "SColdQcdCorrealtorAnalysis::SMakeClustQATree::ResetOutput(): resetting output container." << endl;
-    }
-
-    m_output.recInfo.Reset();
-    m_output.genInfo.Reset();
-    m_output.emCalInfo.clear();
-    m_output.ihCalInfo.clear();
-    m_output.ohCalInfo.clear();
-    return;
-
-  }  // end 'ResetOutput()'
-
-
-
   bool SMakeClustQATree::IsGoodCluster(const RawCluster* cluster) {
 
     // print debug statement
@@ -270,7 +266,7 @@ namespace SColdQcdCorrelatorAnalysis {
     ClustInfo clustInfo(cluster);
 
     // check if cluster is in acceptance and return overall goodness
-    const bool isInAccept = IsInClusterAcceptance(clustInfo, m_config.minAccept, m_config.maxAccept);
+    const bool isInAccept = IsInAcceptance(clustInfo, m_config.clustAccept.first, m_config.clustAccept.second);
     return isInAccept;
 
   }  // end 'IsGoodTrack(RawCluster*)'
