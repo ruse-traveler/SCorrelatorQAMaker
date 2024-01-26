@@ -33,12 +33,11 @@
 #include <caloreco/RawClusterBuilderTopo.h>
 #include <particleflowreco/ParticleFlowReco.h>
 // user includes
-#include "/sphenix/user/danderson/eec/SCorrelatorQAMaker/src/SCorrelatorQAMaker.h"
-#include "/sphenix/user/danderson/eec/SCorrelatorQAMaker/src/SCheckTrackPairs.h"
-#include "/sphenix/user/danderson/eec/SCorrelatorQAMaker/src/SMakeTrackQATuple.h"
-#include "/sphenix/user/danderson/eec/SCorrelatorQAMaker/src/SMakeClustQATree.h"
-#include "/sphenix/user/danderson/eec/SCorrelatorUtilities/TrkTools.h"
-#include "/sphenix/user/danderson/eec/SCorrelatorUtilities/CalTools.h"
+#include "CorrelatorQAMakerOptions.h"
+#include "/sphenix/user/danderson/install/include/scorrelatorqamaker/SCorrelatorQAMaker.h"
+#include "/sphenix/user/danderson/install/include/scorrelatorqamaker/SCheckTrackPairs.h"
+#include "/sphenix/user/danderson/install/include/scorrelatorqamaker/SMakeTrackQATuple.h"
+#include "/sphenix/user/danderson/install/include/scorrelatorqamaker/SMakeClustQATree.h"
 
 using namespace std;
 using namespace SColdQcdCorrelatorAnalysis;
@@ -49,7 +48,8 @@ R__LOAD_LIBRARY(libg4eval.so)
 R__LOAD_LIBRARY(libfun4all.so)
 R__LOAD_LIBRARY(libcalo_reco.so)
 R__LOAD_LIBRARY(libparticleflow.so)
-R__LOAD_LIBRARY(/sphenix/user/danderson/install/lib/libcorrelatorqamaker.so)
+R__LOAD_LIBRARY(/sphenix/user/danderson/install/lib/libscorrelatorqamaker.so)
+R__LOAD_LIBRARY(/sphenix/user/danderson/install/lib/libscorrelatorutilities.so)
 
 // default input/output 
 static const vector<string> VecInFilesDefault = {
@@ -98,65 +98,10 @@ void Fun4All_RunCorrelatorQAModules(
   const bool runTracking(false);
   const bool doTruthTableReco(false);
 
-  // track minima
-  TrkInfo cfg_trkMin;
-  cfg_trkMin.nMvtxLayer = 2.;
-  cfg_trkMin.nInttLayer = 1.;
-  cfg_trkMin.nTpcLayer  = 24.;
-  cfg_trkMin.pt         = 0.2;
-  cfg_trkMin.eta        = -1.1;
-  cfg_trkMin.dcaXY      = -5.;
-  cfg_trkMin.dcaZ       = -5.;
-  cfg_trkMin.ptErr      = 0.;
-  cfg_trkMin.quality    = 0.;
-
-  // track maxima
-  TrkInfo cfg_trkMax;
-  cfg_trkMax.nMvtxLayer = 100.;
-  cfg_trkMax.nInttLayer = 100.;
-  cfg_trkMax.nTpcLayer  = 100.;
-  cfg_trkMax.pt         = 100.;
-  cfg_trkMax.eta        = 1.1;
-  cfg_trkMax.dcaXY      = 5.;
-  cfg_trkMax.dcaZ       = 5.;
-  cfg_trkMax.ptErr      = 0.5;
-  cfg_trkMax.quality    = 10.;
-
-  // clust minima
-  ClustInfo cfg_clustMin;
-  cfg_clustMin.ene = 0.1;
-  cfg_clustMin.eta = -1.1;
-
-  // clust maxima
-  ClustInfo cfg_clustMax;
-  cfg_clustMin.ene = 9999.;
-  cfg_clustMin.eta = 1.1;
-
-  // SCheckTrackPairs configuration
-  SCheckTrackPairsConfig cfg_checkTrackPairs = {
-    .doDcaSigCut    = false,
-    .requireSiSeed  = true,
-    .useOnlyPrimVtx = true,
-    .minAccept      = cfg_trkMin,
-    .maxAccept      = cfg_trkMax
-  };
-
-  // SMakeTrackQATuple configuration
-  SMakeTrackQATupleConfig cfg_makeTrackQATuple = {
-    .isEmbed        = true,
-    .doDcaSigCut    = false,
-    .requireSiSeed  = true,
-    .useOnlyPrimVtx = true,
-    .minAccept      = cfg_trkMin,
-    .maxAccept      = cfg_trkMax
-  };
-
-  // SMakeClustQATree configuration
-  SMakeClustQATreeConfig cfg_makeClustQATree = {
-    .isEmbed   = true,
-    .minAccept = cfg_clustMin,
-    .maxAccept = cfg_clustMax
-  };
+  // get module configurations
+  SCheckTrackPairsConfig  cfg_checkTrackPairs  = CorrelatorQAMakerOptions::GetCheckTrackPairsConfig();
+  SMakeTrackQATupleConfig cfg_makeTrackQATuple = CorrelatorQAMakerOptions::GetMakeTrackQATupleConfig();
+  SMakeClustQATreeConfig  cfg_makeClustQATree  = CorrelatorQAMakerOptions::GetMakeClustQATreeConfig();
 
   // initialize f4a -----------------------------------------------------------
 
