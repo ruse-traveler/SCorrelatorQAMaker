@@ -34,9 +34,7 @@
 #include <trackbase_historic/TrackAnalysisUtils.h>
 // analysis utilities
 #include "SBaseQAPlugin.h"
-#include "/sphenix/user/danderson/install/include/scorrelatorutilities/TrkTools.h"
-#include "/sphenix/user/danderson/install/include/scorrelatorutilities/Constants.h"
-#include "/sphenix/user/danderson/install/include/scorrelatorutilities/Interfaces.h"
+#include "/sphenix/user/danderson/install/include/scorrelatorutilities/SCorrelatorUtilities.h"
 
 // make common namespaces implicit
 using namespace std;

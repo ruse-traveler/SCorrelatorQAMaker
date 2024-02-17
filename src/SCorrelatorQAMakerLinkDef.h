@@ -11,6 +11,7 @@
 #ifdef __CINT__
 
 #pragma link C++ class SCorrelatorQAMaker-!;
+#pragma link C++ class SMakeClustQATreeOutput+;
 
 #endif
 
