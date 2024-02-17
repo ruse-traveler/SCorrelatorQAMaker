@@ -17,8 +17,7 @@
 #include "/sphenix/user/danderson/install/include/scorrelatorqamaker/SCheckTrackPairs.h"
 #include "/sphenix/user/danderson/install/include/scorrelatorqamaker/SMakeTrackQATuple.h"
 #include "/sphenix/user/danderson/install/include/scorrelatorqamaker/SMakeClustQATree.h"
-#include "/sphenix/user/danderson/install/include/scorrelatorutilities/TrkTools.h"
-#include "/sphenix/user/danderson/install/include/scorrelatorutilities/CalTools.h"
+#include "/sphenix/user/danderson/install/include/scorrelatorutilities/SCorrelatorUtilities.h"
 
 // make common namespacs implicit
 using namespace std;
@@ -78,7 +77,7 @@ namespace CorrelatorQAMakerOptions {
 
 
 
-  // bundle clust acceptance into a pair
+  // bundle cluster acceptance into a pair
   pair<ClustInfo, ClustInfo> GetClustAccept() {
 
     pair<ClustInfo, ClustInfo> clustAccept;
@@ -132,6 +131,7 @@ namespace CorrelatorQAMakerOptions {
       .isEmbed     = true,
       .clustAccept = GetClustAccept()
     };
+    return config;
 
   }  // end 'GetMakeClustQATreeConfig()'
 
