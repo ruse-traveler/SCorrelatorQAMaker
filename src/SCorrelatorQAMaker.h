@@ -18,6 +18,7 @@
 #include "SCheckTrackPairs.h"
 #include "SMakeTrackQATuple.h"
 #include "SMakeClustQATree.h"
+#include "SReadLambdaJetTree.h"
 
 using namespace std;
 
@@ -41,19 +42,21 @@ namespace SColdQcdCorrelatorAnalysis {
       void SetGlobalVerbosity(const int verbosity);
 
       // plugin initializers
-      template <typename T> void InitPlugin(const T& config, optional<string> name);
+      template <typename T> void InitPlugin(const T& config, optional<string> name = nullopt);
 
       // plugin accessors
-      SCheckTrackPairs*  CheckTrackPairs()  {return m_checkTrackPairs;}
-      SMakeTrackQATuple* MakeTrackQATuple() {return m_makeTrackQATuple;}
-      SMakeClustQATree*  MakeClustQATree()  {return m_makeClustQATree;}
+      SCheckTrackPairs*   CheckTrackPairs()   {return m_checkTrackPairs;}
+      SMakeTrackQATuple*  MakeTrackQATuple()  {return m_makeTrackQATuple;}
+      SMakeClustQATree*   MakeClustQATree()   {return m_makeClustQATree;}
+      SReadLambdaJetTree* ReadLambdaJetTree() {return m_readLambdaJetTree;}
 
     private:
 
       // plugins
-      SCheckTrackPairs*  m_checkTrackPairs;
-      SMakeTrackQATuple* m_makeTrackQATuple;
-      SMakeClustQATree*  m_makeClustQATree;
+      SCheckTrackPairs*   m_checkTrackPairs   = NULL;
+      SMakeTrackQATuple*  m_makeTrackQATuple  = NULL;
+      SMakeClustQATree*   m_makeClustQATree   = NULL;
+      SReadLambdaJetTree* m_readLambdaJetTree = NULL;
 
   };
 

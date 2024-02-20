@@ -13,4 +13,7 @@ reference/*
 !src/SCheckTrackPairs.h
 !src/SMakeTrackQATuple.h
 !src/SMakeClustQATree.h
+!src/SReadLambdaJetTree.h
+!src/SReadLambdaJetTree.cc
+!src/SReadLambdaJetTreeConfig.h
 !src/SCorrelatorQAMakerLinkDef.h

@@ -17,7 +17,9 @@ pkginclude_HEADERS = \
   SBaseQAPlugin.h \
   SCheckTrackPairs.h \
   SMakeClustQATree.h \
-  SMakeTrackQATuple.h
+  SMakeTrackQATuple.h \
+  SReadLambdaJetTree.h \
+  SReadLambdaJetTreeConfig.h
 
 if ! MAKEROOT6
   ROOT5_DICTS = \
@@ -26,7 +28,11 @@ endif
 
 libscorrelatorqamaker_la_SOURCES = \
   $(ROOT5_DICTS) \
-  SCorrelatorQAMaker.cc 
+  SCorrelatorQAMaker.cc \
+  SCheckTrackPairs.h \
+  SMakeClustQATree.h \
+  SMakeTrackQATuple.h \
+  SReadLambdaJetTree.cc
 
 libscorrelatorqamaker_la_LDFLAGS = \
   -L$(libdir) \

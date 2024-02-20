@@ -17,6 +17,7 @@
 #include "/sphenix/user/danderson/install/include/scorrelatorqamaker/SCheckTrackPairs.h"
 #include "/sphenix/user/danderson/install/include/scorrelatorqamaker/SMakeTrackQATuple.h"
 #include "/sphenix/user/danderson/install/include/scorrelatorqamaker/SMakeClustQATree.h"
+#include "/sphenix/user/danderson/install/include/scorrelatorqamaker/SReadLambdaJetTreeConfig.h"
 #include "/sphenix/user/danderson/install/include/scorrelatorutilities/SCorrelatorUtilities.h"
 
 // make common namespacs implicit
@@ -134,6 +135,21 @@ namespace CorrelatorQAMakerOptions {
     return config;
 
   }  // end 'GetMakeClustQATreeConfig()'
+
+
+
+  // SReadLambdaJetTree configuration
+  SReadLambdaJetTreeConfig GetReadLambdaJetTreeConfig(const string input) {
+
+    SReadLambdaJetTreeConfig config = {
+      .inFileName = input,
+      .inTreeName = "LambdaJetTree",
+      .ptJetMin   = 10.,
+      .zLamMin    = 0.
+    };
+    return config;
+
+  }  // end 'GetReadLambdaJetTreeConfig()'
 
 }  // end CorrelatorQAMakerOptions namespace
 

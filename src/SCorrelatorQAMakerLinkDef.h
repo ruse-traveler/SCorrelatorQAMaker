@@ -11,7 +11,10 @@
 #ifdef __CINT__
 
 #pragma link C++ class SCorrelatorQAMaker-!;
-#pragma link C++ class SMakeClustQATreeOutput+;
+#pragma link C++ class SCheckTrackPairs-!;
+#pragma link C++ class SMakeTrackQATuple-!;
+#pragma link C++ class SMakeClustQATree-!;
+#pragma link C++ class SReadLambdaJetTree-!;
 
 #endif
 

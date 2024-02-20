@@ -29,6 +29,7 @@ namespace SColdQcdCorrelatorAnalysis {
     delete m_checkTrackPairs;
     delete m_makeTrackQATuple;
     delete m_makeClustQATree;
+    delete m_readLambdaJetTree;
 
   }  // end dtor
 
@@ -38,9 +39,10 @@ namespace SColdQcdCorrelatorAnalysis {
 
   void SCorrelatorQAMaker::SetGlobalDebug(const bool debug) {
 
-    m_checkTrackPairs  -> SetDebug(debug);
-    m_makeTrackQATuple -> SetDebug(debug);
-    m_makeClustQATree -> SetDebug(debug);
+    if (m_checkTrackPairs)   m_checkTrackPairs   -> SetDebug(debug);
+    if (m_makeTrackQATuple)  m_makeTrackQATuple  -> SetDebug(debug);
+    if (m_makeClustQATree)   m_makeClustQATree   -> SetDebug(debug);
+    if (m_readLambdaJetTree) m_readLambdaJetTree -> SetDebug(debug);
     return;
 
   }  // end 'SetGlobalDebug(bool)'
@@ -49,9 +51,10 @@ namespace SColdQcdCorrelatorAnalysis {
 
   void SCorrelatorQAMaker::SetGlobalOutFile(const string sOutFile) {
 
-    m_checkTrackPairs   -> SetOutFile(sOutFile);
-    m_makeTrackQATuple -> SetOutFile(sOutFile);
-    m_makeClustQATree   -> SetOutFile(sOutFile);
+    if (m_checkTrackPairs)   m_checkTrackPairs   -> SetOutFile(sOutFile);
+    if (m_makeTrackQATuple)  m_makeTrackQATuple  -> SetOutFile(sOutFile);
+    if (m_makeClustQATree)   m_makeClustQATree   -> SetOutFile(sOutFile);
+    if (m_readLambdaJetTree) m_readLambdaJetTree -> SetOutFile(sOutFile);
     return;
 
   }  // end 'SetGlobalOutFile(string)'
@@ -60,9 +63,10 @@ namespace SColdQcdCorrelatorAnalysis {
 
   void SCorrelatorQAMaker::SetGlobalVerbosity(const int verbosity) {
 
-    m_checkTrackPairs  -> SetVerbosity(verbosity);
-    m_makeTrackQATuple -> SetVerbosity(verbosity);
-    m_makeClustQATree -> SetVerbosity(verbosity);
+    if (m_checkTrackPairs)   m_checkTrackPairs   -> SetVerbosity(verbosity);
+    if (m_makeTrackQATuple)  m_makeTrackQATuple  -> SetVerbosity(verbosity);
+    if (m_makeClustQATree)   m_makeClustQATree   -> SetVerbosity(verbosity);
+    if (m_readLambdaJetTree) m_readLambdaJetTree -> SetVerbosity(verbosity);
     return;
 
   }  // end 'SetGlobalVerbosity(int)'
@@ -116,6 +120,17 @@ namespace SColdQcdCorrelatorAnalysis {
     return;
 
   }  // end 'InitPlugin(SMakeClustQATreeConfig&, optional<string>)'
+
+
+
+  // specialization for SReadLambdaJetTree
+  template <> void SCorrelatorQAMaker::InitPlugin(const SReadLambdaJetTreeConfig& config, optional<string> name) {
+
+    m_readLambdaJetTree = new SReadLambdaJetTree();
+    m_readLambdaJetTree -> SetConfig(config);
+    return;
+
+  }  // end 'InitPlugin(SReadLambdaJetTreeConfig&, optional<string>)'
 
 }  // end SColdQcdCorrelatorAnalysis namespace
 
