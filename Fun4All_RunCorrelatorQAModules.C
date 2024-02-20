@@ -39,6 +39,7 @@
 #include "/sphenix/user/danderson/install/include/scorrelatorqamaker/SMakeTrackQATuple.h"
 #include "/sphenix/user/danderson/install/include/scorrelatorqamaker/SMakeClustQATree.h"
 
+// make common namespaces implicit
 using namespace std;
 using namespace SColdQcdCorrelatorAnalysis;
 using namespace SColdQcdCorrelatorAnalysis::SCorrelatorUtilities;
