@@ -39,8 +39,19 @@ namespace SColdQcdCorrelatorAnalysis {
       // histogram accessors
       enum Evt {
         NJet, 
-        NTag,
-        NLead
+        NTagJet,
+        NLeadJet,
+        NLam,
+        NLamJet,
+        NLeadLam
+      };
+      enum Type {
+        Lam,
+        LLam,
+        Jet,
+        LJet,
+        LLJet,
+        HJet
       };
       enum Var {
         Eta,
@@ -57,14 +68,6 @@ namespace SColdQcdCorrelatorAnalysis {
         VsPt,
         VsDPhi,
         VsDEta
-      };
-      enum Type {
-        Lam,
-        LLam,
-        Jet,
-        LJet,
-        LLJet,
-        HJet
       };
 
       // histograms to fill
@@ -110,6 +113,7 @@ namespace SColdQcdCorrelatorAnalysis {
       bool   IsGoodJet(const double pt, const double eta);
       bool   IsGoodLambda(const double pt, const double eta);
       bool   IsLeadingLambda(const double z);
+      bool   IsAssociatedLambda(const int idLam, const int idJet);
       double GetDeltaPhi(const double phiA, const double phiB);
       double GetDeltaEta(const double etaA, const double etaB);
 
@@ -224,12 +228,12 @@ namespace SColdQcdCorrelatorAnalysis {
 
       // class-wide constants
       struct Const {
+        size_t nHistType;
         size_t nHistVar;
         size_t nHistVs;
-        size_t nHistType;
         double minDPhi;
         double maxDPhi;
-      } m_const = {7, 5, 6, -1.*TMath::Pi(), TMath::Pi()}; 
+      } m_const = {6, 7, 5, -1.*TMath::Pi(), TMath::Pi()}; 
 
   };  // end SReadLambdaJetTree
 

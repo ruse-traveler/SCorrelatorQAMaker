@@ -231,9 +231,12 @@ namespace SColdQcdCorrelatorAnalysis {
     TH2::SetDefaultSumw2(true);
 
     // create event histograms
-    vecHistEvt.push_back( new TH1D("hNumJet",        ";N_{jet};counts", nNumBins, rNumBins.first, rNumBins.second) );
-    vecHistEvt.push_back( new TH1D("hNumTagJet",     ";N_{jet};counts", nNumBins, rNumBins.first, rNumBins.second) );
-    vecHistEvt.push_back( new TH1D("hNumLeadLamJet", ";N_{jet};counts", nNumBins, rNumBins.first, rNumBins.second) );
+    vecHistEvt.push_back( new TH1D("hNumJet",         ";N_{jet};counts",     nNumBins, rNumBins.first, rNumBins.second) );
+    vecHistEvt.push_back( new TH1D("hNumTagJet",      ";N_{jet};counts",     nNumBins, rNumBins.first, rNumBins.second) );
+    vecHistEvt.push_back( new TH1D("hNumLeadLamJet",  ";N_{jet};counts",     nNumBins, rNumBins.first, rNumBins.second) );
+    vecHistEvt.push_back( new TH1D("hNumLambda",      ";N_{#Lambda};counts", nNumBins, rNumBins.first, rNumBins.second) );
+    vecHistEvt.push_back( new TH1D("hNumLambdaInJet", ";N_{#Lambda};counts", nNumBins, rNumBins.first, rNumBins.second) );
+    vecHistEvt.push_back( new TH1D("hNumLeadLambda",  ";N_{#Lambda};counts", nNumBins, rNumBins.first, rNumBins.second) );
 
     // create jet/lambda histograms
     vecHist1D.resize(m_const.nHistType);
@@ -295,9 +298,11 @@ namespace SColdQcdCorrelatorAnalysis {
     cout << "    Beginning event loop: " << nEvents << " to process" << endl;
 
     int64_t  nBytes      = 0;
+    uint64_t nJetTot     = 0;
+    uint64_t nTagJetTot  = 0;
+    uint64_t nLeadJetTot = 0;
     uint64_t nLamTot     = 0;
     uint64_t nLeadLamTot = 0;
-    uint64_t nTagJetTot  = 0;
     for (int64_t iEvt = 0; iEvt < nEvents; iEvt++) {
 
       // grab event
@@ -400,15 +405,94 @@ namespace SColdQcdCorrelatorAnalysis {
         }
       }  // end lambda loop
 
+      // loop over jets
+      uint64_t nJetEvt     = 0;
+      uint64_t nTagJetEvt  = 0;
+      uint64_t nLeadJetEvt = 0;
+      for (size_t iJet = 0; iJet < nVecJets; iJet++) {
+
+        // make sure jet satisfies cuts
+        const bool isGoodJet = IsGoodJet(m_jetPt -> at(iJet), m_jetEta -> at(iJet));
+        if (!isGoodJet) continue;
+
+        // do calculations
+        const double dfJet = GetDeltaPhi(m_jetPhi -> at(iJet), m_jetPhi -> at(iTopPt));
+        const double dhJet = GetDeltaEta(m_jetEta -> at(iJet), m_jetEta -> at(iTopPt));
+
+        // fill general jet histograms
+        Hist hJet = {
+          .eta = m_jetEta -> at(iJet),
+          .ene = m_jetE   -> at(iJet),
+          .pt  = m_jetPt  -> at(iJet),
+          .df  = dfJet,
+          .dh  = dhJet,
+          .dr  = 0.,
+          .z   = 1.
+        };
+        VsVar vsJet = {
+          .eta = m_jetEta -> at(iJet),
+          .ene = m_jetE   -> at(iJet),
+          .pt  = m_jetPt  -> at(iJet),
+          .df  = dfJet,
+          .dh  = dhJet
+        };
+        FillHist1D(Type::Jet, hJet);
+        FillHist2D(Type::Jet, hJet, vsJet);
+        ++nJetEvt;
+        ++nJetTot;
+
+        // if no associated lambda, continue
+        const bool hasLambda = m_jetHasLambda -> at(iJet);
+        if (!hasLambda) continue;
+
+        // find associated lambda(s)
+        bool     hasLeadLam = false;
+        uint64_t nLamJet    = 0;
+        for (size_t iLam = 0; iLam < nVecLams; iLam++) {
+
+          // check if lambda is associated
+          const bool isAssocLam = IsAssociatedLambda(m_lambdaJetID -> at(iLam), m_jetID -> at(iJet));
+          if (!isAssocLam) {
+            continue;
+          }
+          ++nLamJet;
+
+          // check if lambda is leading
+          const bool isLeadLam = IsLeadingLambda(m_lambdaZ -> at(iLam));
+          if (isLeadLam) hasLeadLam = true;
+
+        }  // end lambda loop
+        vecHistEvt.at(Evt::NLamJet) -> Fill(nLamJet);
+
+        // fill tagged jet histograms
+        FillHist1D(Type::LJet, hJet);
+        FillHist2D(Type::LJet, hJet, vsJet);
+        ++nTagJetEvt;
+        ++nTagJetTot;
+
+        // fill jet w/ leading lambda histograms
+        if (hasLeadLam) {
+          FillHist1D(Type::LLJet, hJet);
+          FillHist2D(Type::LLJet, hJet, vsJet);
+          ++nLeadJetEvt;
+          ++nLeadJetTot;
+        }
+      }  // end 2nd jet loop
+
       // fill event histograms
-      vecHistEvt.at(Evt::NJet)  -> Fill(nLamEvt);
-      vecHistEvt.at(Evt::NLead) -> Fill(nLeadLamEvt);
+      vecHistEvt.at(Evt::NJet)     -> Fill(nJetEvt);
+      vecHistEvt.at(Evt::NTagJet)  -> Fill(nTagJetEvt);
+      vecHistEvt.at(Evt::NLeadJet) -> Fill(nLeadJetEvt); 
+      vecHistEvt.at(Evt::NLam)     -> Fill(nLamEvt);
+      vecHistEvt.at(Evt::NLeadLam) -> Fill(nLeadLamEvt);
 
     }  // end event loop
     cout << "    Event loop finished!\n"
-         << "      nLambda     = " << nLamTot     << "\n"
-         << "      nLeadLambda = " << nLeadLamTot << "\n"
-         << "      nTaggedJets = " << nTagJetTot
+         << "      nLambda      = " << nLamTot     << "\n"
+         << "      nLeadLambda  = " << nLeadLamTot << "\n"
+         << "      nJet         = " << nJetTot     << "\n"
+         << "      nTaggedJets  = " << nTagJetTot  << "\n"
+         << "      nLeadTagJets = " << nLeadJetTot
          << endl;
 
     // exit routine
@@ -550,6 +634,15 @@ namespace SColdQcdCorrelatorAnalysis {
     return isLeadLam;
 
   }  // end 'IsLeadingLambda(double)'
+
+
+
+  bool SReadLambdaJetTree::IsAssociatedLambda(const int idLam, const int idJet) {
+
+    const bool isAssoc = (idLam == idJet);
+    return isAssoc;
+
+  }  // end 'IsAssociatedLambda(int, int)'
 
 
 
