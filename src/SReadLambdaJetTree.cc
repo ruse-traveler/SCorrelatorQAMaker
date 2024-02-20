@@ -9,6 +9,7 @@
 // ----------------------------------------------------------------------------
 
 // c++ utilities
+#include <cmath>
 #include <cassert>
 #include <utility>
 #include <iostream>
@@ -210,11 +211,11 @@ namespace SColdQcdCorrelatorAnalysis {
       "hFrac"
     };
     const vector<string> vecVsMods = {
-      "VsJetEta",
-      "VsJetEne",
-      "VsJetPt",
-      "VsJetDeltaPhi",
-      "VsJetDeltaEta"
+      "VsEta",
+      "VsEne",
+      "VsPt",
+      "VsDeltaPhi",
+      "VsDeltaEta"
     };
     const vector<string> vecTypeNames = {
       "Lam",
@@ -224,6 +225,10 @@ namespace SColdQcdCorrelatorAnalysis {
       "LeadLamJet",
       "HighestPtJet"
     };
+
+    // make sure sumw2 is on
+    TH1::SetDefaultSumw2(true);
+    TH2::SetDefaultSumw2(true);
 
     // create event histograms
     vecHistEvt.push_back( new TH1D("hNumJet",        ";N_{jet};counts", nNumBins, rNumBins.first, rNumBins.second) );
@@ -289,7 +294,10 @@ namespace SColdQcdCorrelatorAnalysis {
     const int64_t nEvents = m_tInput -> GetEntries();
     cout << "    Beginning event loop: " << nEvents << " to process" << endl;
 
-    int64_t nBytes = 0;
+    int64_t  nBytes      = 0;
+    uint64_t nLamTot     = 0;
+    uint64_t nLeadLamTot = 0;
+    uint64_t nTagJetTot  = 0;
     for (int64_t iEvt = 0; iEvt < nEvents; iEvt++) {
 
       // grab event
@@ -309,11 +317,19 @@ namespace SColdQcdCorrelatorAnalysis {
         cout << "      Processing entry " << iEvt << "/" << nEvents << "...\r" << flush;
       }
 
+      // get total no. of jets, lambdas in vectors
+      const size_t nVecJets = m_jetPt    -> size();
+      const size_t nVecLams = m_lambdaPt -> size();
 
       // identify highest pt jet
       double ptTop  = -1.;
       size_t iTopPt = -1;
-      for (size_t iJet = 0; iJet < m_jetPt -> size(); iJet++) {
+      for (size_t iJet = 0; iJet < nVecJets; iJet++) {
+
+        // make sure jet satisfies cuts
+        const bool isGoodJet = IsGoodJet(m_jetPt -> at(iJet), m_jetEta -> at(iJet));
+        if (!isGoodJet) continue; 
+
         if (m_jetPt -> at(iJet) > ptTop) {
           ptTop  = m_jetPt -> at(iJet);
           iTopPt = iJet;
@@ -340,7 +356,62 @@ namespace SColdQcdCorrelatorAnalysis {
       FillHist1D(Type::HJet, hTopPtJet);
       FillHist2D(Type::HJet, hTopPtJet, vsTopPtJet);
 
+      // loop over lambdas
+      uint64_t nLamEvt     = 0;
+      uint64_t nLeadLamEvt = 0;
+      for (size_t iLam = 0; iLam < nVecLams; iLam++) {
+
+        // make sure lambda satisfies cuts
+        const bool isGoodLam = IsGoodLambda(m_lambdaPt -> at(iLam), m_lambdaEta -> at(iLam));
+        if (!isGoodLam) continue;
+
+        // do calculations
+        const double dfLam = GetDeltaPhi(m_lambdaPhi -> at(iLam), m_jetPhi -> at(iTopPt));
+        const double dhLam = GetDeltaEta(m_lambdaEta -> at(iLam), m_jetEta -> at(iTopPt)); 
+
+        // fill general lambda histograms
+        Hist hLambda = {
+          .eta = m_lambdaEta    -> at(iLam),
+          .ene = m_lambdaEnergy -> at(iLam),
+          .pt  = m_lambdaPt     -> at(iLam),
+          .df  = dfLam,
+          .dh  = dhLam,
+          .dr  = m_lambdaDr -> at(iLam),
+          .z   = m_lambdaZ  -> at(iLam)
+        };
+        VsVar vsLambda = {
+          .eta = m_lambdaEta    -> at(iLam),
+          .ene = m_lambdaEnergy -> at(iLam),
+          .pt  = m_lambdaPt     -> at(iLam),
+          .df  = dfLam,
+          .dh  = dhLam
+        };
+        FillHist1D(Type::Lam, hLambda);
+        FillHist2D(Type::Lam, hLambda, vsLambda);
+        ++nLamEvt;
+        ++nLamTot;
+
+        const bool isLeadLam = IsLeadingLambda(m_lambdaZ -> at(iLam));
+        if (isLeadLam) {
+          FillHist1D(Type::LLam, hLambda);
+          FillHist2D(Type::LLam, hLambda, vsLambda);
+          ++nLeadLamEvt;
+          ++nLeadLamTot;
+        }
+      }  // end lambda loop
+
+      // fill event histograms
+      vecHistEvt.at(Evt::NJet)  -> Fill(nLamEvt);
+      vecHistEvt.at(Evt::NLead) -> Fill(nLeadLamEvt);
+
     }  // end event loop
+    cout << "    Event loop finished!\n"
+         << "      nLambda     = " << nLamTot     << "\n"
+         << "      nLeadLambda = " << nLeadLamTot << "\n"
+         << "      nTaggedJets = " << nTagJetTot
+         << endl;
+
+    // exit routine
     return;
 
   }  // end 'DoAnalysis()'
@@ -448,6 +519,57 @@ namespace SColdQcdCorrelatorAnalysis {
     return;
 
   }  // end 'FillHist2D(int, Hist, VsVar)'
+
+
+
+  bool SReadLambdaJetTree::IsGoodJet(const double pt, const double eta) {
+
+    const bool isGoodPt  = (pt > m_config.ptJetMin);
+    const bool isGoodEta = (abs(eta) < m_config.etaJetMax);
+    const bool isGoodJet = (isGoodPt && isGoodEta);
+    return isGoodJet;
+
+  }  // end 'IsGoodJet(double, double)'
+
+
+
+  bool SReadLambdaJetTree::IsGoodLambda(const double pt, const double eta) {
+
+    const bool isGoodPt  = (pt > m_config.ptLamMin);
+    const bool isGoodEta = (abs(eta) < m_config.etaLamMax);
+    const bool isGoodLam = (isGoodPt && isGoodEta);
+    return isGoodLam;
+
+  }  // end 'IsGoodLambda(double, double)'
+
+
+
+  bool SReadLambdaJetTree::IsLeadingLambda(const double z) {
+
+    const bool isLeadLam = (z > m_config.zLeadMin);
+    return isLeadLam;
+
+  }  // end 'IsLeadingLambda(double)'
+
+
+
+  double SReadLambdaJetTree::GetDeltaPhi(const double phiA, const double phiB) {
+
+    double dPhi = phiA - phiB;
+    if (dPhi < m_const.minDPhi) dPhi += TMath::TwoPi();
+    if (dPhi > m_const.maxDPhi) dPhi -= TMath::TwoPi();
+    return dPhi;
+
+  }  // end 'GetDeltaPhi(double, double)'
+
+
+
+  double SReadLambdaJetTree::GetDeltaEta(const double etaA, const double etaB) {
+
+    const double dEta = etaA - etaB;
+    return dEta;
+
+  }  // end 'GetDeltaEta(double, double)'
 
 }  // end SColdQcdCorrelatorAnalysis namespace
 

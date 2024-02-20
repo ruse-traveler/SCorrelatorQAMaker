@@ -16,6 +16,7 @@
 // root libraries
 #include <TH1.h>
 #include <TH2.h>
+#include <TMath.h>
 #include <TTree.h>
 #include <TCanvas.h>
 // analysis utilities
@@ -98,14 +99,19 @@ namespace SColdQcdCorrelatorAnalysis {
     private:
 
       // internal methods
-      void InitInput();
-      void InitTree();
-      void InitHists();
-      void DoAnalysis();
-      void SaveOutput();
-      void CloseInput();
-      void FillHist1D(const int type, Hist hist);
-      void FillHist2D(const int type, Hist hist, VsVar vs);
+      void   InitInput();
+      void   InitTree();
+      void   InitHists();
+      void   DoAnalysis();
+      void   SaveOutput();
+      void   CloseInput();
+      void   FillHist1D(const int type, Hist hist);
+      void   FillHist2D(const int type, Hist hist, VsVar vs);
+      bool   IsGoodJet(const double pt, const double eta);
+      bool   IsGoodLambda(const double pt, const double eta);
+      bool   IsLeadingLambda(const double z);
+      double GetDeltaPhi(const double phiA, const double phiB);
+      double GetDeltaEta(const double etaA, const double etaB);
 
       // inputs
       TFile* m_fInput = NULL;
@@ -221,7 +227,9 @@ namespace SColdQcdCorrelatorAnalysis {
         size_t nHistVar;
         size_t nHistVs;
         size_t nHistType;
-      } m_const = {7, 5, 6}; 
+        double minDPhi;
+        double maxDPhi;
+      } m_const = {7, 5, 6, -1.*TMath::Pi(), TMath::Pi()}; 
 
   };  // end SReadLambdaJetTree
 

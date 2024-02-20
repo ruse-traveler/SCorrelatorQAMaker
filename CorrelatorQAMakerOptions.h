@@ -144,8 +144,11 @@ namespace CorrelatorQAMakerOptions {
     SReadLambdaJetTreeConfig config = {
       .inFileName = input,
       .inTreeName = "LambdaJetTree",
-      .ptJetMin   = 10.,
-      .zLamMin    = 0.
+      .ptJetMin   = 0.2,
+      .ptLamMin   = 0.2,
+      .etaJetMax  = 0.7,
+      .etaLamMax  = 1.1,
+      .zLeadMin   = 0.5
     };
     return config;
 

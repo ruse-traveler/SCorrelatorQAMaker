@@ -31,7 +31,10 @@ namespace SColdQcdCorrelatorAnalysis {
 
     // calculation options
     double ptJetMin;
-    double zLamMin;
+    double ptLamMin;
+    double etaJetMax;
+    double etaLamMax;
+    double zLeadMin;
 
   };  // end SReadLambdaJetTreeConfig
 
