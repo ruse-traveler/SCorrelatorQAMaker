@@ -10,6 +10,7 @@
 
 // c++ utilities
 #include <cassert>
+#include <utility>
 #include <iostream>
 // root libraries
 #include <TFile.h>
@@ -29,7 +30,7 @@ namespace SColdQcdCorrelatorAnalysis {
   void SReadLambdaJetTree::Init() {
 
     // announce start
-    cout << "\n  Starting lambda jet tree reader!\n" << endl;
+    cout << "\n  Starting lambda jet tree reader!" << endl;
 
     // initialize output
     InitOutput();
@@ -151,7 +152,7 @@ namespace SColdQcdCorrelatorAnalysis {
     m_tInput -> SetBranchAddress("CstPt",          &m_cstPt,          &m_brCstPt);
     m_tInput -> SetBranchAddress("CstEta",         &m_cstEta,         &m_brCstEta);
     m_tInput -> SetBranchAddress("CstPhi",         &m_cstPhi,         &m_brCstPhi);
-    cout << "    Set input branches." << endl;
+    cout << "    Initialized input tree." << endl;
 
     // exit routine
     return;
@@ -162,7 +163,121 @@ namespace SColdQcdCorrelatorAnalysis {
 
   void SReadLambdaJetTree::InitHists() {
 
-    /* TODO will go here */
+    // no. of histogram binning
+    const size_t nNumBins  = 100;
+    const size_t nFracBins = 500;
+    const size_t nEneBins  = 100;
+    const size_t nEtaBins  = 80;
+    const size_t nDfBins   = 180;
+    const size_t nDhBins   = 160;
+    const size_t nDrBins   = 500;
+
+    // histogram ranges
+    const pair<float, float> rNumBins  = {0.0,   100.};
+    const pair<float, float> rFracBins = {0.0,   5.0};
+    const pair<float, float> rEneBins  = {0.0,   100.};
+    const pair<float, float> rEtaBins  = {-2.0,  2.0};
+    const pair<float, float> rDfBins   = {-3.15, 3.15};
+    const pair<float, float> rDhBins   = {-4.,   4.};
+    const pair<float, float> rDrBins   = {0.0,   5.0};
+
+    // axis definitions
+    const vector<tuple<string, size_t, pair<float, float>>> vecAxisDef = {
+      make_tuple("#eta",            nEtaBins,  rEtaBins),
+      make_tuple("E [GeV/c]",       nEneBins,  rEneBins),
+      make_tuple("p_{T} [GeV/c]",   nEneBins,  rEneBins),
+      make_tuple("#Delta#varphi",   nDfBins,   rDfBins),
+      make_tuple("#Delta#eta",      nDhBins,   rDhBins),
+      make_tuple("#Deltar",         nDrBins,   rDrBins),
+      make_tuple("z = p / p^{jet}", nFracBins, rFracBins)
+    };
+    const vector<tuple<string, size_t, pair<float, float>>> vecVsDef = {
+      make_tuple("#eta",            nEtaBins,  rEtaBins),
+      make_tuple("E [GeV/c]",       nEneBins,  rEneBins),
+      make_tuple("p_{T} [GeV/c]",   nEneBins,  rEneBins),
+      make_tuple("#Delta#varphi",   nDfBins,   rDfBins),
+      make_tuple("#Delta#eta",      nDhBins,   rDhBins)
+    };
+
+    // histogram base names
+    const vector<string> vecBaseNames = {
+      "hEta",
+      "hEne",
+      "hPt",
+      "hDeltaPhi",
+      "hDeltaEta",
+      "hDeltaR",
+      "hFrac"
+    };
+    const vector<string> vecVsMods = {
+      "VsJetEta",
+      "VsJetEne",
+      "VsJetPt",
+      "VsJetDeltaPhi",
+      "VsJetDeltaEta"
+    };
+    const vector<string> vecTypeNames = {
+      "Lam",
+      "LeadLam",
+      "Jet",
+      "LamJet",
+      "LeadLamJet",
+      "HighestPtJet"
+    };
+
+    // create event histograms
+    vecHistEvt.push_back( new TH1D("hNumJet",        ";N_{jet};counts", nNumBins, rNumBins.first, rNumBins.second) );
+    vecHistEvt.push_back( new TH1D("hNumTagJet",     ";N_{jet};counts", nNumBins, rNumBins.first, rNumBins.second) );
+    vecHistEvt.push_back( new TH1D("hNumLeadLamJet", ";N_{jet};counts", nNumBins, rNumBins.first, rNumBins.second) );
+
+    // create jet/lambda histograms
+    vecHist1D.resize(m_const.nHistType);
+    vecHist2D.resize(m_const.nHistType);
+    for (size_t iType = 0; iType < m_const.nHistType; iType++) {
+
+      // loop over base variables
+      vecHist1D[iType].resize(m_const.nHistVar);
+      vecHist2D[iType].resize(m_const.nHistVar);
+      for (size_t iVar = 0; iVar < m_const.nHistVar; iVar++) {
+ 
+        // make 1d name and title
+        const string sName1D  = vecBaseNames[iVar] + "_" + vecTypeNames[iType];
+        const string sTitle1D = ";" + get<0>(vecAxisDef[iVar]) + ";counts";
+
+        // create 1d histogram
+        vecHist1D[iType][iVar] = new TH1D(
+          sName1D.data(),
+          sTitle1D.data(),
+          get<1>(vecAxisDef[iVar]),
+          get<2>(vecAxisDef[iVar]).first,
+          get<2>(vecAxisDef[iVar]).second
+        );
+
+        // loop over vs variables
+        vecHist2D[iType][iVar].resize(m_const.nHistVs);
+        for (size_t iVs = 0; iVs < m_const.nHistVs; iVs++) {
+ 
+          // make 2d name and title
+          const string sName2D  = vecBaseNames[iVar] + vecVsMods[iVs] + "_" + vecTypeNames[iType];
+          const string sTitle2D = ";" + get<0>(vecVsDef[iVs]) + ";" + get<0>(vecAxisDef[iVar]) + ";counts";
+
+          // create 2d histogram
+          vecHist2D[iType][iVar][iVs] = new TH2D(
+            sName2D.data(),
+            sTitle2D.data(),
+            get<1>(vecVsDef[iVar]),
+            get<2>(vecVsDef[iVar]).first,
+            get<2>(vecVsDef[iVar]).second,
+            get<1>(vecAxisDef[iVar]),
+            get<2>(vecAxisDef[iVar]).first,
+            get<2>(vecAxisDef[iVar]).second
+          );
+        }  // end vs loop
+      }  // end variable loop
+    }  // end type loop
+    cout << "    Initialized histograms." << endl;
+
+    // exit routine
     return;
 
   }  // end 'InitHists()'
@@ -194,7 +309,36 @@ namespace SColdQcdCorrelatorAnalysis {
         cout << "      Processing entry " << iEvt << "/" << nEvents << "...\r" << flush;
       }
 
-      /* fill histograms here */
+
+      // identify highest pt jet
+      double ptTop  = -1.;
+      size_t iTopPt = -1;
+      for (size_t iJet = 0; iJet < m_jetPt -> size(); iJet++) {
+        if (m_jetPt -> at(iJet) > ptTop) {
+          ptTop  = m_jetPt -> at(iJet);
+          iTopPt = iJet;
+        }
+      }  // end 1st jet loop
+
+      // fill highest pt histograms
+      Hist hTopPtJet = {
+        .eta = m_jetEta -> at(iTopPt),
+        .ene = m_jetE   -> at(iTopPt),
+        .pt  = m_jetPt  -> at(iTopPt),
+        .df  = 0.,
+        .dh  = 0.,
+        .dr  = 0.,
+        .z   = 1.
+      };
+      VsVar vsTopPtJet = {
+        .eta = m_jetEta -> at(iTopPt),
+        .ene = m_jetE   -> at(iTopPt),
+        .pt  = m_jetPt  -> at(iTopPt),
+        .df  = 0.,
+        .dh  = 0.
+      };
+      FillHist1D(Type::HJet, hTopPtJet);
+      FillHist2D(Type::HJet, hTopPtJet, vsTopPtJet);
 
     }  // end event loop
     return;
@@ -206,7 +350,24 @@ namespace SColdQcdCorrelatorAnalysis {
   void SReadLambdaJetTree::SaveOutput() {
 
     m_outDir -> cd();
-    /* TODO will go here */
+    for (auto hEvt : vecHistEvt) {
+      hEvt -> Write();
+    }
+    for (auto type : vecHist1D) {
+      for (auto h1D : type) {
+        h1D -> Write();
+      }
+    }
+    for (auto type : vecHist2D) {
+      for (auto var : type) {
+        for (auto h2D : var) {
+          h2D -> Write();
+        }
+      }
+    }
+
+    // announce and return
+    cout << "    Saved histograms." << endl;
     return;
 
   }  // end 'SaveOutput()'
@@ -215,11 +376,78 @@ namespace SColdQcdCorrelatorAnalysis {
 
   void SReadLambdaJetTree::CloseInput() {
 
-    m_fInput  -> cd();
-    m_fInput  -> Close();
+    m_fInput -> cd();
+    m_fInput -> Close();
     return;
 
   }  // end 'CloseInput()' 
+
+
+
+  void SReadLambdaJetTree::FillHist1D(const int type, Hist hist) {
+
+    vecHist1D.at(type)[Var::Eta]  -> Fill(hist.eta);
+    vecHist1D.at(type)[Var::Ene]  -> Fill(hist.ene);
+    vecHist1D.at(type)[Var::Pt]   -> Fill(hist.pt);
+    vecHist1D.at(type)[Var::DPhi] -> Fill(hist.df);
+    vecHist1D.at(type)[Var::DEta] -> Fill(hist.dh);
+    vecHist1D.at(type)[Var::Dr]   -> Fill(hist.dr);
+    vecHist1D.at(type)[Var::Z]    -> Fill(hist.z);
+    return;
+
+  }  // end 'FillHist1D(int, Hist)'
+
+
+
+  void SReadLambdaJetTree::FillHist2D(const int type, Hist hist, VsVar vs) {
+
+    // fill vs. eta histograms
+    vecHist2D.at(type)[Var::Eta][Mod::VsEta]  -> Fill(vs.eta, hist.eta);
+    vecHist2D.at(type)[Var::Ene][Mod::VsEta]  -> Fill(vs.eta, hist.ene);
+    vecHist2D.at(type)[Var::Pt][Mod::VsEta]   -> Fill(vs.eta, hist.pt);
+    vecHist2D.at(type)[Var::DPhi][Mod::VsEta] -> Fill(vs.eta, hist.df);
+    vecHist2D.at(type)[Var::DEta][Mod::VsEta] -> Fill(vs.eta, hist.dh);
+    vecHist2D.at(type)[Var::Dr][Mod::VsEta]   -> Fill(vs.eta, hist.dr);
+    vecHist2D.at(type)[Var::Z][Mod::VsEta]    -> Fill(vs.eta, hist.z);
+
+    // fill vs. energy histograms
+    vecHist2D.at(type)[Var::Eta][Mod::VsEne]  -> Fill(vs.ene, hist.eta);
+    vecHist2D.at(type)[Var::Ene][Mod::VsEne]  -> Fill(vs.ene, hist.ene);
+    vecHist2D.at(type)[Var::Pt][Mod::VsEne]   -> Fill(vs.ene, hist.pt);
+    vecHist2D.at(type)[Var::DPhi][Mod::VsEne] -> Fill(vs.ene, hist.df);
+    vecHist2D.at(type)[Var::DEta][Mod::VsEne] -> Fill(vs.ene, hist.dh);
+    vecHist2D.at(type)[Var::Dr][Mod::VsEne]   -> Fill(vs.ene, hist.dr);
+    vecHist2D.at(type)[Var::Z][Mod::VsEne]    -> Fill(vs.ene, hist.z);
+
+    // fill vs. pt histograms
+    vecHist2D.at(type)[Var::Eta][Mod::VsPt]  -> Fill(vs.pt, hist.eta);
+    vecHist2D.at(type)[Var::Ene][Mod::VsPt]  -> Fill(vs.pt, hist.ene);
+    vecHist2D.at(type)[Var::Pt][Mod::VsPt]   -> Fill(vs.pt, hist.pt);
+    vecHist2D.at(type)[Var::DPhi][Mod::VsPt] -> Fill(vs.pt, hist.df);
+    vecHist2D.at(type)[Var::DEta][Mod::VsPt] -> Fill(vs.pt, hist.dh);
+    vecHist2D.at(type)[Var::Dr][Mod::VsPt]   -> Fill(vs.pt, hist.dr);
+    vecHist2D.at(type)[Var::Z][Mod::VsPt]    -> Fill(vs.pt, hist.z);
+
+    // fill vs. delta-phi histograms
+    vecHist2D.at(type)[Var::Eta][Mod::VsDPhi]  -> Fill(vs.df, hist.eta);
+    vecHist2D.at(type)[Var::Ene][Mod::VsDPhi]  -> Fill(vs.df, hist.ene);
+    vecHist2D.at(type)[Var::Pt][Mod::VsDPhi]   -> Fill(vs.df, hist.pt);
+    vecHist2D.at(type)[Var::DPhi][Mod::VsDPhi] -> Fill(vs.df, hist.df);
+    vecHist2D.at(type)[Var::DEta][Mod::VsDPhi] -> Fill(vs.df, hist.dh);
+    vecHist2D.at(type)[Var::Dr][Mod::VsDPhi]   -> Fill(vs.df, hist.dr);
+    vecHist2D.at(type)[Var::Z][Mod::VsDPhi]    -> Fill(vs.df, hist.z);
+
+    // fill vs. delta-eta histograms
+    vecHist2D.at(type)[Var::Eta][Mod::VsDEta]  -> Fill(vs.dh, hist.eta);
+    vecHist2D.at(type)[Var::Ene][Mod::VsDEta]  -> Fill(vs.dh, hist.ene);
+    vecHist2D.at(type)[Var::Pt][Mod::VsDEta]   -> Fill(vs.dh, hist.pt);
+    vecHist2D.at(type)[Var::DPhi][Mod::VsDEta] -> Fill(vs.dh, hist.df);
+    vecHist2D.at(type)[Var::DEta][Mod::VsDEta] -> Fill(vs.dh, hist.dh);
+    vecHist2D.at(type)[Var::Dr][Mod::VsDEta]   -> Fill(vs.dh, hist.dr);
+    vecHist2D.at(type)[Var::Z][Mod::VsDEta]    -> Fill(vs.dh, hist.z);
+    return;
+
+  }  // end 'FillHist2D(int, Hist, VsVar)'
 
 }  // end SColdQcdCorrelatorAnalysis namespace
 

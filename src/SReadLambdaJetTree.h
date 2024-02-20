@@ -35,6 +35,57 @@ namespace SColdQcdCorrelatorAnalysis {
 
     public:
 
+      // histogram accessors
+      enum Evt {
+        NJet, 
+        NTag,
+        NLead
+      };
+      enum Var {
+        Eta,
+        Ene,
+        Pt,
+        DPhi,
+        DEta,
+        Dr,
+        Z
+      };
+      enum Mod {
+        VsEta,
+        VsEne,
+        VsPt,
+        VsDPhi,
+        VsDEta
+      };
+      enum Type {
+        Lam,
+        LLam,
+        Jet,
+        LJet,
+        LLJet,
+        HJet
+      };
+
+      // histograms to fill
+      struct Hist {
+        double eta;
+        double ene;
+        double mom;
+        double pt;
+        double df;
+        double dh;
+        double dr;
+        double z;
+      };
+      struct VsVar {
+        double eta;
+        double ene;
+        double mom;
+        double pt;
+        double df;
+        double dh;
+      };
+
       // ctor/dtor
       SReadLambdaJetTree()  {};
       ~SReadLambdaJetTree() {};
@@ -53,10 +104,17 @@ namespace SColdQcdCorrelatorAnalysis {
       void DoAnalysis();
       void SaveOutput();
       void CloseInput();
+      void FillHist1D(const int type, Hist hist);
+      void FillHist2D(const int type, Hist hist, VsVar vs);
 
       // inputs
       TFile* m_fInput = NULL;
       TTree* m_tInput = NULL;
+
+      // histograms
+      vector<TH1D*>                 vecHistEvt;
+      vector<vector<TH1D*>>         vecHist1D;
+      vector<vector<vector<TH2D*>>> vecHist2D;
 
       // event-level input leaves
       int    m_evtNJets;
@@ -157,6 +215,13 @@ namespace SColdQcdCorrelatorAnalysis {
       TBranch* m_brCstPt          = NULL;
       TBranch* m_brCstEta         = NULL;
       TBranch* m_brCstPhi         = NULL;
+
+      // class-wide constants
+      struct Const {
+        size_t nHistVar;
+        size_t nHistVs;
+        size_t nHistType;
+      } m_const = {7, 5, 6}; 
 
   };  // end SReadLambdaJetTree
 
