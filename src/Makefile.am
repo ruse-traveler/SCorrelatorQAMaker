@@ -16,6 +16,7 @@ pkginclude_HEADERS = \
   SCorrelatorQAMaker.h \
   SBaseQAPlugin.h \
   SCheckTrackPairs.h \
+  SCheckTrackPairsConfig.h \
   SMakeClustQATree.h \
   SMakeTrackQATuple.h \
   SReadLambdaJetTree.h \
@@ -29,7 +30,7 @@ endif
 libscorrelatorqamaker_la_SOURCES = \
   $(ROOT5_DICTS) \
   SCorrelatorQAMaker.cc \
-  SCheckTrackPairs.h \
+  SCheckTrackPairs.cc \
   SMakeClustQATree.h \
   SMakeTrackQATuple.h \
   SReadLambdaJetTree.cc

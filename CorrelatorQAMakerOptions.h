@@ -14,7 +14,7 @@
 #include <utility>
 
 // analysis utilities
-#include "/sphenix/user/danderson/install/include/scorrelatorqamaker/SCheckTrackPairs.h"
+#include "/sphenix/user/danderson/install/include/scorrelatorqamaker/SCheckTrackPairsConfig.h"
 #include "/sphenix/user/danderson/install/include/scorrelatorqamaker/SMakeTrackQATuple.h"
 #include "/sphenix/user/danderson/install/include/scorrelatorqamaker/SMakeClustQATree.h"
 #include "/sphenix/user/danderson/install/include/scorrelatorqamaker/SReadLambdaJetTreeConfig.h"
@@ -144,7 +144,7 @@ namespace CorrelatorQAMakerOptions {
     SReadLambdaJetTreeConfig config = {
       .inFileName = input,
       .inTreeName = "LambdaJetTree",
-      .ptJetMin   = 0.2,
+      .ptJetMin   = 10.,
       .ptLamMin   = 0.2,
       .etaJetMax  = 0.7,
       .etaLamMax  = 1.1,

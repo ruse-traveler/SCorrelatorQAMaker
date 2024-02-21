@@ -11,6 +11,8 @@ reference/*
 !src/SBaseQAPlugin.h
 !src/SCheckCstPairs.h
 !src/SCheckTrackPairs.h
+!src/SCheckTrackPairs.cc
+!src/SCheckTrackPairsConfig.h
 !src/SMakeTrackQATuple.h
 !src/SMakeClustQATree.h
 !src/SReadLambdaJetTree.h
