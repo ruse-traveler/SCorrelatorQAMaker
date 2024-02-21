@@ -58,6 +58,7 @@ namespace SColdQcdCorrelatorAnalysis {
   void SReadLambdaJetTree::End() {
 
     // run internal routines
+    SetHistogramStyles();
     SaveOutput();
     CloseInput();
 
@@ -273,9 +274,9 @@ namespace SColdQcdCorrelatorAnalysis {
           vecHist2D[iType][iVar][iVs] = new TH2D(
             sName2D.data(),
             sTitle2D.data(),
-            get<1>(vecVsDef[iVar]),
-            get<2>(vecVsDef[iVar]).first,
-            get<2>(vecVsDef[iVar]).second,
+            get<1>(vecVsDef[iVs]),
+            get<2>(vecVsDef[iVs]).first,
+            get<2>(vecVsDef[iVs]).second,
             get<1>(vecAxisDef[iVar]),
             get<2>(vecAxisDef[iVar]).first,
             get<2>(vecAxisDef[iVar]).second
@@ -327,8 +328,9 @@ namespace SColdQcdCorrelatorAnalysis {
       const size_t nVecLams = m_lambdaPt -> size();
 
       // identify highest pt jet
-      double ptTop  = -1.;
-      size_t iTopPt = -1;
+      bool     foundTopPt = false;
+      double   ptTop      = 0.;
+      uint64_t iTopPt     = 0;
       for (size_t iJet = 0; iJet < nVecJets; iJet++) {
 
         // make sure jet satisfies cuts
@@ -336,30 +338,33 @@ namespace SColdQcdCorrelatorAnalysis {
         if (!isGoodJet) continue; 
 
         if (m_jetPt -> at(iJet) > ptTop) {
-          ptTop  = m_jetPt -> at(iJet);
-          iTopPt = iJet;
+          ptTop      = m_jetPt -> at(iJet);
+          iTopPt     = iJet;
+          foundTopPt = true;
         }
       }  // end 1st jet loop
 
       // fill highest pt histograms
-      Hist hTopPtJet = {
-        .eta = m_jetEta -> at(iTopPt),
-        .ene = m_jetE   -> at(iTopPt),
-        .pt  = m_jetPt  -> at(iTopPt),
-        .df  = 0.,
-        .dh  = 0.,
-        .dr  = 0.,
-        .z   = 1.
-      };
-      VsVar vsTopPtJet = {
-        .eta = m_jetEta -> at(iTopPt),
-        .ene = m_jetE   -> at(iTopPt),
-        .pt  = m_jetPt  -> at(iTopPt),
-        .df  = 0.,
-        .dh  = 0.
-      };
-      FillHist1D(Type::HJet, hTopPtJet);
-      FillHist2D(Type::HJet, hTopPtJet, vsTopPtJet);
+      if (foundTopPt) {
+        Hist hTopPtJet = {
+          .eta = m_jetEta -> at(iTopPt),
+          .ene = m_jetE   -> at(iTopPt),
+          .pt  = m_jetPt  -> at(iTopPt),
+          .df  = 0.,
+          .dh  = 0.,
+          .dr  = 0.,
+          .z   = 1.
+        };
+        VsVar vsTopPtJet = {
+          .eta = m_jetEta -> at(iTopPt),
+          .ene = m_jetE   -> at(iTopPt),
+          .pt  = m_jetPt  -> at(iTopPt),
+          .df  = 0.,
+          .dh  = 0.
+        };
+        FillHist1D(Type::HJet, hTopPtJet);
+        FillHist2D(Type::HJet, hTopPtJet, vsTopPtJet);
+      }
 
       // loop over lambdas
       uint64_t nLamEvt     = 0;
@@ -502,6 +507,82 @@ namespace SColdQcdCorrelatorAnalysis {
 
 
 
+  void SReadLambdaJetTree::SetHistogramStyles() {
+
+    for (auto hEvt : vecHistEvt) {
+      hEvt -> SetLineStyle(m_config.defLineStyle);
+      hEvt -> SetLineColor(m_config.defHistColor);
+      hEvt -> SetFillStyle(m_config.defFillStyle);
+      hEvt -> SetFillColor(m_config.defHistColor);
+      hEvt -> SetMarkerStyle(m_config.defMarkStyle);
+      hEvt -> SetMarkerColor(m_config.defHistColor);
+      hEvt -> GetXaxis() -> CenterTitle(m_config.centerTitle);
+      hEvt -> GetXaxis() -> SetTitleFont(m_config.defHistFont);
+      hEvt -> GetXaxis() -> SetTitleSize(m_config.defTitleX);
+      hEvt -> GetXaxis() -> SetTitleOffset(m_config.defOffX);
+      hEvt -> GetXaxis() -> SetLabelSize(m_config.defLabelX);
+      hEvt -> GetYaxis() -> CenterTitle(m_config.centerTitle);
+      hEvt -> GetYaxis() -> SetTitleFont(m_config.defHistFont);
+      hEvt -> GetYaxis() -> SetTitleSize(m_config.defTitleY);
+      hEvt -> GetYaxis() -> SetTitleOffset(m_config.defOffY);
+      hEvt -> GetYaxis() -> SetLabelSize(m_config.defLabelY);
+    }
+    for (auto type : vecHist1D) {
+      for (auto h1D : type) {
+        h1D -> SetLineStyle(m_config.defLineStyle);
+        h1D -> SetLineColor(m_config.defHistColor);
+        h1D -> SetFillStyle(m_config.defFillStyle);
+        h1D -> SetFillColor(m_config.defHistColor);
+        h1D -> SetMarkerStyle(m_config.defMarkStyle);
+        h1D -> SetMarkerColor(m_config.defHistColor);
+        h1D -> GetXaxis() -> CenterTitle(m_config.centerTitle);
+        h1D -> GetXaxis() -> SetTitleFont(m_config.defHistFont);
+        h1D -> GetXaxis() -> SetTitleSize(m_config.defTitleX);
+        h1D -> GetXaxis() -> SetTitleOffset(m_config.defOffX);
+        h1D -> GetXaxis() -> SetLabelSize(m_config.defLabelX);
+        h1D -> GetYaxis() -> CenterTitle(m_config.centerTitle);
+        h1D -> GetYaxis() -> SetTitleFont(m_config.defHistFont);
+        h1D -> GetYaxis() -> SetTitleSize(m_config.defTitleY);
+        h1D -> GetYaxis() -> SetTitleOffset(m_config.defOffY);
+        h1D -> GetYaxis() -> SetLabelSize(m_config.defLabelY);
+      }
+    }
+    for (auto type : vecHist2D) {
+      for (auto var : type) {
+        for (auto h2D : var) {
+          h2D -> SetLineStyle(m_config.defLineStyle);
+          h2D -> SetLineColor(m_config.defHistColor);
+          h2D -> SetFillStyle(m_config.defFillStyle);
+          h2D -> SetFillColor(m_config.defHistColor);
+          h2D -> SetMarkerStyle(m_config.defMarkStyle);
+          h2D -> SetMarkerColor(m_config.defHistColor);
+          h2D -> GetXaxis() -> CenterTitle(m_config.centerTitle);
+          h2D -> GetXaxis() -> SetTitleFont(m_config.defHistFont);
+          h2D -> GetXaxis() -> SetTitleSize(m_config.defTitleX);
+          h2D -> GetXaxis() -> SetTitleOffset(m_config.defOffX);
+          h2D -> GetXaxis() -> SetLabelSize(m_config.defLabelX);
+          h2D -> GetYaxis() -> CenterTitle(m_config.centerTitle);
+          h2D -> GetYaxis() -> SetTitleFont(m_config.defHistFont);
+          h2D -> GetYaxis() -> SetTitleSize(m_config.defTitleY);
+          h2D -> GetYaxis() -> SetTitleOffset(m_config.defOffY);
+          h2D -> GetYaxis() -> SetLabelSize(m_config.defLabelY);
+          h2D -> GetZaxis() -> CenterTitle(m_config.centerTitle);
+          h2D -> GetZaxis() -> SetTitleFont(m_config.defHistFont);
+          h2D -> GetZaxis() -> SetTitleSize(m_config.defTitleZ);
+          h2D -> GetZaxis() -> SetTitleOffset(m_config.defOffZ);
+          h2D -> GetZaxis() -> SetLabelSize(m_config.defLabelZ);
+        }
+      }
+    }
+    cout << "    Set histogram styles." << endl;
+
+    // exit internal routine
+    return;
+
+  }  // end 'SetHistogramStyles()'
+
+
+
   void SReadLambdaJetTree::SaveOutput() {
 
     m_outDir -> cd();
@@ -520,9 +601,9 @@ namespace SColdQcdCorrelatorAnalysis {
         }
       }
     }
-
-    // announce and return
     cout << "    Saved histograms." << endl;
+
+    // exit internal routine
     return;
 
   }  // end 'SaveOutput()'

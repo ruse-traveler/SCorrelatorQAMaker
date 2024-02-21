@@ -106,6 +106,7 @@ namespace SColdQcdCorrelatorAnalysis {
       void   InitTree();
       void   InitHists();
       void   DoAnalysis();
+      void   SetHistogramStyles();
       void   SaveOutput();
       void   CloseInput();
       void   FillHist1D(const int type, Hist hist);
