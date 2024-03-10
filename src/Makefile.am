@@ -22,6 +22,7 @@ pkginclude_HEADERS = \
   SMakeClustQATreeConfig.h \
   SMakeClustQATreeOutput.h \
   SMakeTrackQATuple.h \
+  SMakeTrackQATupleConfig.h \
   SReadLambdaJetTree.h \
   SReadLambdaJetTreeConfig.h
 
@@ -35,6 +36,7 @@ libscorrelatorqamaker_la_SOURCES = \
   SCorrelatorQAMaker.cc \
   SCheckTrackPairs.cc \
   SMakeClustQATree.cc \
+  SMakeTrackQATuple.cc \
   SReadLambdaJetTree.cc
 
 libscorrelatorqamaker_la_LDFLAGS = \
