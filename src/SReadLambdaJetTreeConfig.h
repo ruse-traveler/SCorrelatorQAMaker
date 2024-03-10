@@ -8,11 +8,8 @@
 // of lambdas.
 // ----------------------------------------------------------------------------
 
-#ifndef SREADLAMBDAJETTREECONFIG_H
-#define SREADLAMBDAJETTREECONFIG_H
-
-// c++ utilities
-#include <string>
+#ifndef SCORRELATORQAMAKER_SREADLAMBDAJETTREECONFIG_H
+#define SCORRELATORQAMAKER_SREADLAMBDAJETTREECONFIG_H
 
 // make common namespaces implicit
 using namespace std;

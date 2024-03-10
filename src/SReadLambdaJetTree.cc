@@ -8,17 +8,9 @@
 // of lambdas.
 // ----------------------------------------------------------------------------
 
-#define SREADLAMBDAJETTREE_CC
+#define SCORRELATORQAMAKER_SREADLAMBDAJETTREE_CC
 
-// c++ utilities
-#include <cmath>
-#include <cassert>
-#include <utility>
-#include <iostream>
-// root libraries
-#include <TFile.h>
-#include <TTree.h>
-// analysis utilities
+// plugin definition
 #include "SReadLambdaJetTree.h"
 
 // make common namespaces implicit

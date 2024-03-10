@@ -8,18 +8,24 @@
 // of lambdas.
 // ----------------------------------------------------------------------------
 
-#ifndef SREADLAMBDAJETTREE_H
-#define SREADLAMBDAJETTREE_H
+#ifndef SCORRELATORQAMAKER_SREADLAMBDAJETTREE_H
+#define SCORRELATORQAMAKER_SREADLAMBDAJETTREE_H
 
 // c++ utilities
+#include <cmath>
+#include <string>
 #include <vector>
+#include <cassert>
+#include <utility>
+#include <iostream>
 // root libraries
 #include <TH1.h>
 #include <TH2.h>
 #include <TMath.h>
+#include <TFile.h>
 #include <TTree.h>
 #include <TCanvas.h>
-// analysis utilities
+// plugin definitions
 #include "SBaseQAPlugin.h"
 #include "SReadLambdaJetTreeConfig.h"
 
