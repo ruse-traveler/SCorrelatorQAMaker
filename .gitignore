@@ -15,6 +15,9 @@ reference/*
 !src/SCheckTrackPairsConfig.h
 !src/SMakeTrackQATuple.h
 !src/SMakeClustQATree.h
+!src/SMakeClustQATree.cc
+!src/SMakeClustQATreeConfig.h
+!src/SMakeClustQATreeOutput.h
 !src/SReadLambdaJetTree.h
 !src/SReadLambdaJetTree.cc
 !src/SReadLambdaJetTreeConfig.h

@@ -19,6 +19,8 @@ pkginclude_HEADERS = \
   SCheckTrackPairs.h \
   SCheckTrackPairsConfig.h \
   SMakeClustQATree.h \
+  SMakeClustQATreeConfig.h \
+  SMakeClustQATreeOutput.h \
   SMakeTrackQATuple.h \
   SReadLambdaJetTree.h \
   SReadLambdaJetTreeConfig.h
@@ -32,6 +34,7 @@ libscorrelatorqamaker_la_SOURCES = \
   $(ROOT5_DICTS) \
   SCorrelatorQAMaker.cc \
   SCheckTrackPairs.cc \
+  SMakeClustQATree.cc \
   SReadLambdaJetTree.cc
 
 libscorrelatorqamaker_la_LDFLAGS = \
