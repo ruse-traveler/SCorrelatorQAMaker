@@ -42,7 +42,6 @@
 // make common namespaces implicit
 using namespace std;
 using namespace SColdQcdCorrelatorAnalysis;
-using namespace SColdQcdCorrelatorAnalysis::SCorrelatorUtilities;
 
 // load libraries
 R__LOAD_LIBRARY(libg4eval.so)

@@ -12,18 +12,17 @@
 // c++ utilities
 #include <string>
 #include <utility>
-
-// analysis utilities
-#include "/sphenix/user/danderson/install/include/scorrelatorqamaker/SCheckTrackPairsConfig.h"
-#include "/sphenix/user/danderson/install/include/scorrelatorqamaker/SMakeTrackQATuple.h"
+// analysis libraries
+#include "/sphenix/user/danderson/install/include/scorrelatorutilities/Types.h"
+#include "/sphenix/user/danderson/install/include/scorrelatorutilities/Constants.h"
 #include "/sphenix/user/danderson/install/include/scorrelatorqamaker/SMakeClustQATree.h"
+#include "/sphenix/user/danderson/install/include/scorrelatorqamaker/SMakeTrackQATuple.h"
+#include "/sphenix/user/danderson/install/include/scorrelatorqamaker/SCheckTrackPairsConfig.h"
 #include "/sphenix/user/danderson/install/include/scorrelatorqamaker/SReadLambdaJetTreeConfig.h"
-#include "/sphenix/user/danderson/install/include/scorrelatorutilities/SCorrelatorUtilities.h"
 
 // make common namespacs implicit
 using namespace std;
 using namespace SColdQcdCorrelatorAnalysis;
-using namespace SColdQcdCorrelatorAnalysis::SCorrelatorUtilities;
 
 
 
@@ -51,27 +50,33 @@ namespace CorrelatorQAMakerOptions {
   // set up acceptances -------------------------------------------------------
 
   // bundle track acceptance into a pair
-  pair<TrkInfo, TrkInfo> GetTrackAccept() {
+  pair<Types::TrkInfo, Types::TrkInfo> GetTrackAccept() {
 
-    pair<TrkInfo, TrkInfo> trkAccept;
-    trkAccept.first.nMvtxLayer  = nMvtxLayerTrkRange.first;
-    trkAccept.first.nInttLayer  = nInttLayerTrkRange.first;
-    trkAccept.first.nTpcLayer   = nTpcLayerTrkRange.first;
-    trkAccept.first.pt          = ptTrkRange.first;
-    trkAccept.first.eta         = etaTrkRange.first;
-    trkAccept.first.dcaXY       = dcaXYTrkRange.first;
-    trkAccept.first.dcaZ        = dcaZTrkRange.first;
-    trkAccept.first.ptErr       = ptErrTrkRange.first;
-    trkAccept.first.quality     = qualityTrkRange.first;
-    trkAccept.second.nMvtxLayer = nMvtxLayerTrkRange.second;
-    trkAccept.second.nInttLayer = nInttLayerTrkRange.second;
-    trkAccept.second.nTpcLayer  = nTpcLayerTrkRange.second;
-    trkAccept.second.pt         = ptTrkRange.second;
-    trkAccept.second.eta        = etaTrkRange.second;
-    trkAccept.second.dcaXY      = dcaXYTrkRange.second;
-    trkAccept.second.dcaZ       = dcaZTrkRange.second;
-    trkAccept.second.ptErr      = ptErrTrkRange.second;
-    trkAccept.second.quality    = qualityTrkRange.second;
+    // create maximal range
+    pair<Types::TrkInfo, Types::TrkInfo> trkAccept = {
+      Types::TrkInfo(Const::Init::Minimize),
+      Types::TrkInfo(Const::Init::Maximize)
+    };
+
+    // set specific bounds
+    trkAccept.first.SetNMvtxLayer( nMvtxLayerTrkRange.first );
+    trkAccept.first.SetNInttLayer( nInttLayerTrkRange.first );
+    trkAccept.first.SetNTpcLayer( nTpcLayerTrkRange.first );
+    trkAccept.first.SetPT( ptTrkRange.first );
+    trkAccept.first.SetEta( etaTrkRange.first );
+    trkAccept.first.SetDcaXY( dcaXYTrkRange.first );
+    trkAccept.first.SetDcaZ( dcaZTrkRange.first );
+    trkAccept.first.SetPtErr( ptErrTrkRange.first );
+    trkAccept.first.SetQuality( qualityTrkRange.first );
+    trkAccept.second.SetNMvtxLayer( nMvtxLayerTrkRange.second );
+    trkAccept.second.SetNInttLayer( nInttLayerTrkRange.second );
+    trkAccept.second.SetNTpcLayer( nTpcLayerTrkRange.second );
+    trkAccept.second.SetPT( ptTrkRange.second );
+    trkAccept.second.SetEta( etaTrkRange.second );
+    trkAccept.second.SetDcaXY( dcaXYTrkRange.second );
+    trkAccept.second.SetDcaZ( dcaZTrkRange.second );
+    trkAccept.second.SetPtErr( ptErrTrkRange.second );
+    trkAccept.second.SetQuality( qualityTrkRange.second );
     return trkAccept;
 
   }  // end 'GetTrackAcceptance()'
@@ -79,13 +84,19 @@ namespace CorrelatorQAMakerOptions {
 
 
   // bundle cluster acceptance into a pair
-  pair<ClustInfo, ClustInfo> GetClustAccept() {
+  pair<Types::ClustInfo, Types::ClustInfo> GetClustAccept() {
 
-    pair<ClustInfo, ClustInfo> clustAccept;
-    clustAccept.first.ene  = eneClustRange.first;
-    clustAccept.first.eta  = etaClustRange.first;
-    clustAccept.second.ene = eneClustRange.second;
-    clustAccept.second.eta = etaClustRange.second;
+    // create maximal range
+    pair<Types::ClustInfo, Types::ClustInfo> clustAccept = {
+      Types::ClustInfo(Const::Init::Minimize),
+      Types::ClustInfo(Const::Init::Maximize)
+    };
+
+    // set specific bounds
+    clustAccept.first.SetEne( eneClustRange.first );
+    clustAccept.first.SetEta( etaClustRange.first );
+    clustAccept.second.SetEne( eneClustRange.second );
+    clustAccept.second.SetEta( etaClustRange.second );
     return clustAccept;
 
   }  // end 'GetClustAccept()'

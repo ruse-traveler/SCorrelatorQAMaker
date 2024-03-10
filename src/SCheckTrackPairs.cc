@@ -8,30 +8,14 @@
 // tuples/histograms comparing them.
 // ----------------------------------------------------------------------------
 
-// c++ utilities
-#include <string>
-#include <vector>
-// f4a libraries
-#include <fun4all/SubsysReco.h>
-#include <fun4all/Fun4AllReturnCodes.h>
-// phool libraries
-#include <phool/phool.h>
-#include <phool/getClass.h>
-#include <phool/PHIODataNode.h>
-#include <phool/PHNodeIterator.h>
-#include <phool/PHCompositeNode.h>
-// tracking libraries
-#include <trackbase_historic/SvtxTrack.h>
-#include <trackbase_historic/SvtxTrackMap.h>
-#include <trackbase_historic/TrackAnalysisUtils.h>
+#define SCORRELATORQAMAKER_SCHECKTRACKPAIRS_CC
+
 // analysis utilities
 #include "SCheckTrackPairs.h"
-#include "/sphenix/user/danderson/install/include/scorrelatorutilities/SCorrelatorUtilities.h"
 
 // make common namespaces implicit
 using namespace std;
 using namespace findNode;
-using namespace SColdQcdCorrelatorAnalysis::SCorrelatorUtilities;
 
 
 
@@ -77,13 +61,18 @@ namespace SColdQcdCorrelatorAnalysis {
       cout << "SColdQcdCorrelatorAnalysis::SCheckTrackPairs::InitTuples(): initializing output tuple." << endl;
     }
 
-    // create leaf list and add leaves for 1st track in pair
-    vector<string> vecTrkPairLeaves = MakeLeafVector<TrkInfo>("_a");
-    vecTrkPairLeaves.push_back("nClustKey_a");
+    // create leaf lists and add leaves
+    vector<string> vecTrkPairLeavesA = Types::TrkInfo::GetListOfMembers();
+    vector<string> vecTrkPairLeavesB = Types::TrkInfo::GetListOfMembers();
+    Interfaces::AddTagToLeaves("_a", vecTrkPairLeavesA); 
+    Interfaces::AddTagToLeaves("_b", vecTrkPairLeavesB); 
+    vecTrkPairLeavesA.push_back("nClustKey_a");
+    vecTrkPairLeavesB.push_back("nClustKey_b");
 
-    // add leaves for 2nd track in pair
-    AddLeavesToVector<TrkInfo>(vecTrkPairLeaves, "_b");
-    vecTrkPairLeaves.push_back("nClustKey_b");
+    // combine lists
+    vector<string> vecTrkPairLeaves;
+    Interfaces::CombineLeafLists(vecTrkPairLeavesA, vecTrkPairLeaves);
+    Interfaces::CombineLeafLists(vecTrkPairLeavesB, vecTrkPairLeaves);
 
     // add leaves for no. of same cluster keys b/n pair and
     // distance between pair
@@ -91,7 +80,7 @@ namespace SColdQcdCorrelatorAnalysis {
     vecTrkPairLeaves.push_back("trackDeltaR");
 
     // compress leaves into a colon-separated list
-    string argTrkPairLeaves = FlattenLeafList(vecTrkPairLeaves);
+    string argTrkPairLeaves = Interfaces::FlattenLeafList(vecTrkPairLeaves);
 
     // create tuple and return
     m_ntTrackPairs = new TNtuple("ntTrackPairs", "Pairs of tracks", argTrkPairLeaves.data());
@@ -146,8 +135,12 @@ namespace SColdQcdCorrelatorAnalysis {
     // loop over tracks
     SvtxTrack*    trackA  = NULL;
     SvtxTrack*    trackB  = NULL;
-    SvtxTrackMap* mapTrks = GetTrackMap(topNode);
-    for (SvtxTrackMap::Iter itTrkA = mapTrks -> begin(); itTrkA != mapTrks -> end(); ++itTrkA) {
+    SvtxTrackMap* mapTrks = Interfaces::GetTrackMap(topNode);
+    for (
+      SvtxTrackMap::Iter itTrkA = mapTrks -> begin();
+      itTrkA != mapTrks -> end();
+      ++itTrkA
+    ) {
 
       // grab track A and skip if bad
       trackA = itTrkA -> second;
@@ -157,7 +150,7 @@ namespace SColdQcdCorrelatorAnalysis {
       if (!isGoodTrackA) continue;
 
       // grab track info
-      TrkInfo trkInfoA(trackA, topNode);
+      Types::TrkInfo trkInfoA(trackA, topNode);
 
       // loop over tracks again
       for (SvtxTrackMap::Iter itTrkB = mapTrks -> begin(); itTrkB != mapTrks -> end(); ++itTrkB) {
@@ -173,11 +166,11 @@ namespace SColdQcdCorrelatorAnalysis {
         if ((trackA -> get_id()) == (trackB -> get_id())) continue;
 
         // grab track info
-        TrkInfo trkInfoB(trackB, topNode);
+        Types::TrkInfo trkInfoB(trackB, topNode);
 
         // calculate delta-R
-        const double dfTrkAB = trkInfoA.phi - trkInfoB.phi;
-        const double dhTrkAB = trkInfoA.eta - trkInfoB.eta;
+        const double dfTrkAB = trkInfoA.GetPhi() - trkInfoB.GetPhi();
+        const double dhTrkAB = trkInfoA.GetEta() - trkInfoB.GetEta();
         const double drTrkAB = sqrt((dfTrkAB * dfTrkAB) + (dhTrkAB * dhTrkAB));
 
         // clear vectors for checking cluster keys
@@ -214,49 +207,49 @@ namespace SColdQcdCorrelatorAnalysis {
         }  // end cluster key A loop
 
         // set tuple leaves
-        m_vecTrackPairLeaves[0]  = (float) trkInfoA.id;
-        m_vecTrackPairLeaves[1]  = (float) trkInfoA.nMvtxLayer;
-        m_vecTrackPairLeaves[2]  = (float) trkInfoA.nInttLayer;
-        m_vecTrackPairLeaves[3]  = (float) trkInfoA.nTpcLayer;
-        m_vecTrackPairLeaves[4]  = (float) trkInfoA.nMvtxClust;
-        m_vecTrackPairLeaves[5]  = (float) trkInfoA.nInttClust;
-        m_vecTrackPairLeaves[6]  = (float) trkInfoA.nTpcClust;
-        m_vecTrackPairLeaves[7]  = (float) trkInfoA.eta;
-        m_vecTrackPairLeaves[8]  = (float) trkInfoA.phi;
-        m_vecTrackPairLeaves[9]  = (float) trkInfoA.px;
-        m_vecTrackPairLeaves[10] = (float) trkInfoA.py;
-        m_vecTrackPairLeaves[11] = (float) trkInfoA.pz;
-        m_vecTrackPairLeaves[12] = (float) trkInfoA.pt;
-        m_vecTrackPairLeaves[13] = (float) trkInfoA.ene;
-        m_vecTrackPairLeaves[14] = (float) trkInfoA.dcaXY;
-        m_vecTrackPairLeaves[15] = (float) trkInfoA.dcaZ;
-        m_vecTrackPairLeaves[16] = (float) trkInfoA.ptErr;
-        m_vecTrackPairLeaves[17] = (float) trkInfoA.quality;
-        m_vecTrackPairLeaves[18] = (float) trkInfoA.vtxX;
-        m_vecTrackPairLeaves[19] = (float) trkInfoA.vtxY;
-        m_vecTrackPairLeaves[20] = (float) trkInfoA.vtxZ;
+        m_vecTrackPairLeaves[0]  = (float) trkInfoA.GetID();
+        m_vecTrackPairLeaves[1]  = (float) trkInfoA.GetNMvtxLayer();
+        m_vecTrackPairLeaves[2]  = (float) trkInfoA.GetNInttLayer();
+        m_vecTrackPairLeaves[3]  = (float) trkInfoA.GetNTpcLayer();
+        m_vecTrackPairLeaves[4]  = (float) trkInfoA.GetNMvtxClust();
+        m_vecTrackPairLeaves[5]  = (float) trkInfoA.GetNInttClust();
+        m_vecTrackPairLeaves[6]  = (float) trkInfoA.GetNTpcClust();
+        m_vecTrackPairLeaves[7]  = (float) trkInfoA.GetEta();
+        m_vecTrackPairLeaves[8]  = (float) trkInfoA.GetPhi();
+        m_vecTrackPairLeaves[9]  = (float) trkInfoA.GetPX();
+        m_vecTrackPairLeaves[10] = (float) trkInfoA.GetPY();
+        m_vecTrackPairLeaves[11] = (float) trkInfoA.GetPZ();
+        m_vecTrackPairLeaves[12] = (float) trkInfoA.GetPT();
+        m_vecTrackPairLeaves[13] = (float) trkInfoA.GetEne();
+        m_vecTrackPairLeaves[14] = (float) trkInfoA.GetDcaXY();
+        m_vecTrackPairLeaves[15] = (float) trkInfoA.GetDcaZ();
+        m_vecTrackPairLeaves[16] = (float) trkInfoA.GetPtErr();
+        m_vecTrackPairLeaves[17] = (float) trkInfoA.GetQuality();
+        m_vecTrackPairLeaves[18] = (float) trkInfoA.GetVX();
+        m_vecTrackPairLeaves[19] = (float) trkInfoA.GetVY();
+        m_vecTrackPairLeaves[20] = (float) trkInfoA.GetVZ();
         m_vecTrackPairLeaves[21] = (float) m_vecClustKeysA.size();
-        m_vecTrackPairLeaves[22] = (float) trkInfoB.id;
-        m_vecTrackPairLeaves[23] = (float) trkInfoB.nMvtxLayer;
-        m_vecTrackPairLeaves[24] = (float) trkInfoB.nInttLayer;
-        m_vecTrackPairLeaves[25] = (float) trkInfoB.nTpcLayer;
-        m_vecTrackPairLeaves[26] = (float) trkInfoB.nMvtxClust;
-        m_vecTrackPairLeaves[27] = (float) trkInfoB.nInttClust;
-        m_vecTrackPairLeaves[28] = (float) trkInfoB.nTpcClust;
-        m_vecTrackPairLeaves[29] = (float) trkInfoB.eta;
-        m_vecTrackPairLeaves[30] = (float) trkInfoB.phi;
-        m_vecTrackPairLeaves[31] = (float) trkInfoB.px;
-        m_vecTrackPairLeaves[32] = (float) trkInfoB.py;
-        m_vecTrackPairLeaves[33] = (float) trkInfoB.pz;
-        m_vecTrackPairLeaves[34] = (float) trkInfoB.pt;
-        m_vecTrackPairLeaves[35] = (float) trkInfoB.ene;
-        m_vecTrackPairLeaves[36] = (float) trkInfoB.dcaXY;
-        m_vecTrackPairLeaves[37] = (float) trkInfoB.dcaZ;
-        m_vecTrackPairLeaves[38] = (float) trkInfoB.ptErr;
-        m_vecTrackPairLeaves[39] = (float) trkInfoB.quality;
-        m_vecTrackPairLeaves[40] = (float) trkInfoB.vtxX;
-        m_vecTrackPairLeaves[41] = (float) trkInfoB.vtxY;
-        m_vecTrackPairLeaves[42] = (float) trkInfoB.vtxZ;
+        m_vecTrackPairLeaves[22] = (float) trkInfoB.GetID();
+        m_vecTrackPairLeaves[23] = (float) trkInfoB.GetNMvtxLayer();
+        m_vecTrackPairLeaves[24] = (float) trkInfoB.GetNInttLayer();
+        m_vecTrackPairLeaves[25] = (float) trkInfoB.GetNTpcLayer();
+        m_vecTrackPairLeaves[26] = (float) trkInfoB.GetNMvtxClust();
+        m_vecTrackPairLeaves[27] = (float) trkInfoB.GetNInttClust();
+        m_vecTrackPairLeaves[28] = (float) trkInfoB.GetNTpcClust();
+        m_vecTrackPairLeaves[29] = (float) trkInfoB.GetEta();
+        m_vecTrackPairLeaves[30] = (float) trkInfoB.GetPhi();
+        m_vecTrackPairLeaves[31] = (float) trkInfoB.GetPX();
+        m_vecTrackPairLeaves[32] = (float) trkInfoB.GetPY();
+        m_vecTrackPairLeaves[33] = (float) trkInfoB.GetPZ();
+        m_vecTrackPairLeaves[34] = (float) trkInfoB.GetPT();
+        m_vecTrackPairLeaves[35] = (float) trkInfoB.GetEne();
+        m_vecTrackPairLeaves[36] = (float) trkInfoB.GetDcaXY();
+        m_vecTrackPairLeaves[37] = (float) trkInfoB.GetDcaZ();
+        m_vecTrackPairLeaves[38] = (float) trkInfoB.GetPtErr();
+        m_vecTrackPairLeaves[39] = (float) trkInfoB.GetQuality();
+        m_vecTrackPairLeaves[40] = (float) trkInfoB.GetVX();
+        m_vecTrackPairLeaves[41] = (float) trkInfoB.GetVY();
+        m_vecTrackPairLeaves[42] = (float) trkInfoB.GetVZ();
         m_vecTrackPairLeaves[43] = (float) m_vecClustKeysB.size();
         m_vecTrackPairLeaves[44] = (float) nSameKey;
         m_vecTrackPairLeaves[45] = (float) drTrkAB;
@@ -276,30 +269,29 @@ namespace SColdQcdCorrelatorAnalysis {
 
     // print debug statement
     if (m_isDebugOn && (m_verbosity > 4)) {
-      cout << "SCheckTrackPairs::IsGoodTrack(SvtxTrack*, PHCompositeNode*) Checking if track is good..." << endl;
+      cout << "SCheckTrackPairs::IsGoodTrack(SvtxTrack* track, PHCompositeNode*) Checking if track is good..." << endl;
     }
 
-    // grab track info
-    TrkInfo info(track, topNode);
+    // grab info
+    Types::TrkInfo info(track, topNode);
 
     // if needed, check if dca is in pt-dependent range
     bool isInDcaSigma = true;
     if (m_config.doDcaSigCut) {
-      isInDcaSigma = IsInSigmaDcaCut(info, m_config.nSigCut, m_config.ptFitMax, m_config.fSigDca);
+      isInDcaSigma = info.IsInSigmaDcaCut(m_config.nSigCut, m_config.ptFitMax, m_config.fSigDca);
     }
 
     // if needed, check if track is from primary vertex
-    const bool isFromPrimVtx = m_config.useOnlyPrimVtx ? IsFromPrimaryVtx(track, topNode) : true;
+    const bool isFromPrimVtx = m_config.useOnlyPrimVtx ? Tools::IsFromPrimaryVtx(track, topNode) : true;
 
     // check if seed is good & track is in acceptance
-    const bool isSeedGood = IsGoodTrackSeed(track, m_config.requireSiSeed);
-    const bool isInAccept = IsInAcceptance(info, m_config.trkAccept.first, m_config.trkAccept.second);
+    const bool isSeedGood = Tools::IsGoodTrackSeed(track, m_config.requireSiSeed);
+    const bool isInAccept = info.IsInAcceptance(m_config.trkAccept);
 
     // return overall goodness of track
     return (isFromPrimVtx && isInDcaSigma && isSeedGood && isInAccept);
 
-  }  // end 'IsGoodTrack(SvtxTrack* track, PHCompositeNode* topNode)'
-
+  }  // end 'IsGoodTrack(SvtxTrack*, PHCompositeNode* topNode)'
 
 }  // end SColdQcdCorrelatorAnalysis namespace
 

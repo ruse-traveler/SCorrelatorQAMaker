@@ -38,13 +38,16 @@
 #include <calobase/RawTowerGeomContainer.h>
 #include <calotrigger/CaloTriggerInfo.h>
 // analysis utilities
+#include "/sphenix/user/danderson/install/include/scorrelatorutilities/Tools.h"
+#include "/sphenix/user/danderson/install/include/scorrelatorutilities/Types.h"
+#include "/sphenix/user/danderson/install/include/scorrelatorutilities/Constants.h"
+#include "/sphenix/user/danderson/install/include/scorrelatorutilities/Interfaces.h"
+// plugin definitions
 #include "SBaseQAPlugin.h"
-#include "/sphenix/user/danderson/install/include/scorrelatorutilities/SCorrelatorUtilities.h"
 
 // make common namespaces implicit
 using namespace std;
 using namespace findNode;
-using namespace SColdQcdCorrelatorAnalysis::SCorrelatorUtilities;
 
 
 
@@ -57,7 +60,7 @@ namespace SColdQcdCorrelatorAnalysis {
     bool isEmbed;
 
     // cluster acceptance
-    pair<ClustInfo, ClustInfo> clustAccept;
+    pair<Types::ClustInfo, Types::ClustInfo> clustAccept;
 
   };  // end SMakeClustQATreeConfig
 
@@ -68,13 +71,13 @@ namespace SColdQcdCorrelatorAnalysis {
   struct SMakeClustQATreeOutput {
 
     // event level info
-    RecoInfo recInfo;
-    GenInfo  genInfo;
+    Types::RecoInfo recInfo;
+    Types::GenInfo  genInfo;
 
     // calo info
-    vector<ClustInfo> emCalInfo;
-    vector<ClustInfo> ihCalInfo;
-    vector<ClustInfo> ohCalInfo;
+    vector<Types::ClustInfo> emCalInfo;
+    vector<Types::ClustInfo> ihCalInfo;
+    vector<Types::ClustInfo> ohCalInfo;
 
     void Reset() {
       recInfo.Reset();
@@ -205,7 +208,7 @@ namespace SColdQcdCorrelatorAnalysis {
     }
 
     // grab clusters
-    RawClusterContainer::ConstRange clusters = GetClusters(topNode, node);
+    RawClusterContainer::ConstRange clusters = Interfaces::GetClusters(topNode, node);
 
     // loop over clusters
     for (
@@ -223,20 +226,20 @@ namespace SColdQcdCorrelatorAnalysis {
       if (!isGoodClust) continue;
 
       // grab cluster info
-      ClustInfo clustInfo(cluster, MapNodeOntoIndex[node]);
+      Types::ClustInfo clustInfo(cluster, Const::MapNodeOntoIndex()[node]);
 
       // add to relevant list
-      switch (MapNodeOntoIndex[node]) {
+      switch (Const::MapNodeOntoIndex()[node]) {
 
-        case Subsys::EMCal:
+        case Const::Subsys::EMCal:
           m_output.emCalInfo.push_back(clustInfo);
           break;
 
-        case Subsys::IHCal:
+        case Const::Subsys::IHCal:
           m_output.ihCalInfo.push_back(clustInfo);
           break;
 
-        case Subsys::OHCal:
+        case Const::Subsys::OHCal:
           m_output.ohCalInfo.push_back(clustInfo);
           break;
 
@@ -259,10 +262,10 @@ namespace SColdQcdCorrelatorAnalysis {
     }
 
     // grab cluster info
-    ClustInfo clustInfo(cluster);
+    Types::ClustInfo info(cluster);
 
     // check if cluster is in acceptance and return overall goodness
-    const bool isInAccept = IsInAcceptance(clustInfo, m_config.clustAccept.first, m_config.clustAccept.second);
+    const bool isInAccept = info.IsInAcceptance(m_config.clustAccept);
     return isInAccept;
 
   }  // end 'IsGoodTrack(RawCluster*)'

@@ -8,12 +8,8 @@
 // tuples/histograms comparing them.
 // ----------------------------------------------------------------------------
 
-// c++ utilities
-#include <utility>
-// root utilities
-#include <TF1.h>
-// analysis utilities
-#include "/sphenix/user/danderson/install/include/scorrelatorutilities/SCorrelatorUtilities.h"
+#ifndef SCORRELATORQAMAKER_SCHECKTRACKPAIRSCONFIG_H
+#define SCORRELATORQAMAKER_SCHECKTRACKPAIRSCONFIG_H
 
 // make common namespaces implicit
 using namespace std;
@@ -26,12 +22,12 @@ namespace SColdQcdCorrelatorAnalysis {
 
   struct SCheckTrackPairsConfig {
 
-    bool doDcaSigCut;
-    bool requireSiSeed;
-    bool useOnlyPrimVtx;
+    bool doDcaSigCut     {false};
+    bool requireSiSeed   {true};
+    bool useOnlyPrimVtx  {true};
 
     // track acceptance
-    pair<TrkInfo, TrkInfo> trkAccept;
+    pair<Types::TrkInfo, Types::TrkInfo> trkAccept;
 
     // for pt-dependent sigma cut
     pair<float, float> nSigCut;
@@ -41,5 +37,7 @@ namespace SColdQcdCorrelatorAnalysis {
   };  // end SCheckTrackPairsConfig
 
 }  // end SColdQcdCorrelatorAnalysis namespace
+
+#endif
 
 // end ------------------------------------------------------------------------

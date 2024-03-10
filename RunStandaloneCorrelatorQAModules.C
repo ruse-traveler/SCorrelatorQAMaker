@@ -24,13 +24,14 @@ using namespace SColdQcdCorrelatorAnalysis;
 
 // load libraries
 R__LOAD_LIBRARY(/sphenix/user/danderson/install/lib/libscorrelatorqamaker.so)
+R__LOAD_LIBRARY(/sphenix/user/danderson/install/lib/libscorrelatorutilities.so)
 
 // default input/output 
 static const vector<string> VecInFilesDefault = {
   "../SLambdaJetHunter/output/condor/final_merge/lambdaJetTree_full_withAssocFix.pp200py8jet10run8.d19m2y2024.root"
 };
 static const vector<string> VecOutFilesDefault = {
-  "lambdaJetTreePlots_withNicePlots_fullWithAssocFix.pp200py8jet10run8.d19m2y2024.root"
+  "lambdaJetTreePlots_ptJet10ptLam02_fullWithAssocFix.pp200py8jet10run8.d20m2y2024.root"
 };
 static const vector<string> VecOutDirDefault = {
   "ReadLambdaJetTree"

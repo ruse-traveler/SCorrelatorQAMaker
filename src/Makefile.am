@@ -5,7 +5,8 @@ lib_LTLIBRARIES = \
 
 AM_LDFLAGS = \
   -L$(libdir) \
-  -L$(OFFLINE_MAIN)/lib
+  -L$(OFFLINE_MAIN)/lib \
+  $(MYINSTALL)/lib/libscorrelatorutilities.la
 
 AM_CPPFLAGS = \
   -I$(includedir) \
@@ -31,8 +32,6 @@ libscorrelatorqamaker_la_SOURCES = \
   $(ROOT5_DICTS) \
   SCorrelatorQAMaker.cc \
   SCheckTrackPairs.cc \
-  SMakeClustQATree.h \
-  SMakeTrackQATuple.h \
   SReadLambdaJetTree.cc
 
 libscorrelatorqamaker_la_LDFLAGS = \

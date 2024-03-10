@@ -8,28 +8,41 @@
 // tuples/histograms comparing them.
 // ----------------------------------------------------------------------------
 
-#ifndef SCHECKTRACKPAIRS_H
-#define SCHECKTRACKPAIRS_H
+#ifndef SCORRELATORQAMAKER_SCHECKTRACKPAIRS_H
+#define SCORRELATORQAMAKER_SCHECKTRACKPAIRS_H
 
 // c++ utilities
 #include <string>
 #include <vector>
+#include <utility>
 // root utilities
+#include <TF1.h>
 #include <TNtuple.h>
 #include <Math/Vector3D.h>
 // f4a libraries
 #include <fun4all/SubsysReco.h>
+#include <fun4all/Fun4AllReturnCodes.h>
 // phool libraries
+#include <phool/phool.h>
+#include <phool/getClass.h>
+#include <phool/PHIODataNode.h>
+#include <phool/PHNodeIterator.h>
 #include <phool/PHCompositeNode.h>
+// tracking libraries
+#include <trackbase_historic/SvtxTrack.h>
+#include <trackbase_historic/SvtxTrackMap.h>
+#include <trackbase_historic/TrackAnalysisUtils.h>
 // analysis utilities
+#include "/sphenix/user/danderson/install/include/scorrelatorutilities/Tools.h"
+#include "/sphenix/user/danderson/install/include/scorrelatorutilities/Types.h"
+#include "/sphenix/user/danderson/install/include/scorrelatorutilities/Constants.h"
+#include "/sphenix/user/danderson/install/include/scorrelatorutilities/Interfaces.h"
+// plugin definitions
 #include "SBaseQAPlugin.h"
 #include "SCheckTrackPairsConfig.h"
-#include "/sphenix/user/danderson/install/include/scorrelatorutilities/SCorrelatorUtilities.h"
 
 // make common namespaces implicit
 using namespace std;
-using namespace findNode;
-using namespace SColdQcdCorrelatorAnalysis::SCorrelatorUtilities;
 
 
 
