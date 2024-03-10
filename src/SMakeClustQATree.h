@@ -49,7 +49,6 @@
 
 // make common namespaces implicit
 using namespace std;
-using namespace findNode;
 
 
 
