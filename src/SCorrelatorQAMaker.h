@@ -14,6 +14,8 @@
 // c++ utilities
 #include <string>
 #include <optional>
+#include <cassert>
+#include <optional>
 // plugin definitions
 #include "SCheckTrackPairs.h"
 #include "SMakeTrackQATuple.h"

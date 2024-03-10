@@ -10,10 +10,7 @@
 
 #define SCORRELATORQAMAKER_CC
 
-// c++ utilities
-#include <cassert>
-#include <optional>
-// user includes
+// module definition
 #include "SCorrelatorQAMaker.h"
 
 using namespace std;

@@ -10,7 +10,7 @@
 
 #define SCORRELATORQAMAKER_SCHECKTRACKPAIRS_CC
 
-// analysis utilities
+// plugin definition
 #include "SCheckTrackPairs.h"
 
 // make common namespaces implicit
