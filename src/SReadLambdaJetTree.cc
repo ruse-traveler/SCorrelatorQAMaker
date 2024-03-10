@@ -8,6 +8,8 @@
 // of lambdas.
 // ----------------------------------------------------------------------------
 
+#define SREADLAMBDAJETTREE_CC
+
 // c++ utilities
 #include <cmath>
 #include <cassert>
