@@ -23,9 +23,9 @@ pkginclude_HEADERS = \
   SMakeClustQATreeOutput.h \
   SMakeTrackQATuple.h \
   SMakeTrackQATupleConfig.h \
-  SMakeTrackQATupleHistDef.h \
   SReadLambdaJetTree.h \
-  SReadLambdaJetTreeConfig.h
+  SReadLambdaJetTreeConfig.h \
+  SReadLambdaJetTreeHistDef.h
 
 if ! MAKEROOT6
   ROOT5_DICTS = \

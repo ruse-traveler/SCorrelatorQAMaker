@@ -235,12 +235,11 @@ namespace SColdQcdCorrelatorAnalysis {
     const int64_t nEvents = m_tInput -> GetEntries();
     cout << "    Beginning event loop: " << nEvents << " to process" << endl;
 
-    int64_t  nBytes      = 0;
-    uint64_t nJetTot     = 0;
-    uint64_t nTagJetTot  = 0;
-    uint64_t nLeadJetTot = 0;
-    uint64_t nLamTot     = 0;
-    uint64_t nLeadLamTot = 0;
+    // for counting types
+    vector<uint64_t> nTot(m_hist.vecTypeNames.size(), 0);
+    vector<uint64_t> nEvt(m_hist.vecTypeNames.size(), 0);
+
+    int64_t nBytes = 0;
     for (int64_t iEvt = 0; iEvt < nEvents; iEvt++) {
 
       // grab event
@@ -258,6 +257,11 @@ namespace SColdQcdCorrelatorAnalysis {
         cout << "      Processing entry " << iEvt << "/" << nEvents << "..." << endl;
       } else {
         cout << "      Processing entry " << iEvt << "/" << nEvents << "...\r" << flush;
+      }
+
+      // reset per-event counters
+      for (size_t iType = 0; iType < nEvt.size(); iType++) {
+        nEvt[iType] = 0;
       }
 
       // get total no. of jets, lambdas in vectors
@@ -304,8 +308,6 @@ namespace SColdQcdCorrelatorAnalysis {
       }
 
       // loop over lambdas
-      uint64_t nLamEvt     = 0;
-      uint64_t nLeadLamEvt = 0;
       for (size_t iLam = 0; iLam < nVecLams; iLam++) {
 
         // make sure lambda satisfies cuts
@@ -335,22 +337,19 @@ namespace SColdQcdCorrelatorAnalysis {
         };
         FillHist1D(Type::Lam, hLambda);
         FillHist2D(Type::Lam, hLambda, vsLambda);
-        ++nLamEvt;
-        ++nLamTot;
+        ++nEvt[Type::Lam];
+        ++nTot[Type::Lam];
 
         const bool isLeadLam = IsLeadingLambda(m_lambdaZ -> at(iLam));
         if (isLeadLam) {
           FillHist1D(Type::LLam, hLambda);
           FillHist2D(Type::LLam, hLambda, vsLambda);
-          ++nLeadLamEvt;
-          ++nLeadLamTot;
+          ++nEvt[Type::LLam];
+          ++nTot[Type::LLam];
         }
       }  // end lambda loop
 
       // loop over jets
-      uint64_t nJetEvt     = 0;
-      uint64_t nTagJetEvt  = 0;
-      uint64_t nLeadJetEvt = 0;
       for (size_t iJet = 0; iJet < nVecJets; iJet++) {
 
         // make sure jet satisfies cuts
@@ -380,8 +379,8 @@ namespace SColdQcdCorrelatorAnalysis {
         };
         FillHist1D(Type::Jet, hJet);
         FillHist2D(Type::Jet, hJet, vsJet);
-        ++nJetEvt;
-        ++nJetTot;
+        ++nEvt[Type::Jet];
+        ++nTot[Type::Jet];
 
         // if no associated lambda, continue
         const bool hasLambda = m_jetHasLambda -> at(iJet);
@@ -409,36 +408,42 @@ namespace SColdQcdCorrelatorAnalysis {
         // fill tagged jet histograms
         FillHist1D(Type::LJet, hJet);
         FillHist2D(Type::LJet, hJet, vsJet);
-        ++nTagJetEvt;
-        ++nTagJetTot;
+        ++nEvt[Type::LJet];
+        ++nTot[Type::LJet];
 
         // fill multi-lambda jet histogmras
-        FillHist1D(Type::MLJet, hJet);
-        FillHist2D(Type::MLJet, hJet, vsJet);
+        if (nLamJet >= 2) {
+          FillHist1D(Type::MLJet, hJet);
+          FillHist2D(Type::MLJet, hJet, vsJet);
+          ++nEvt[Type::MLJet];
+          ++nTot[Type::MLJet];
+        }
 
         // fill jet w/ leading lambda histograms
         if (hasLeadLam) {
           FillHist1D(Type::LLJet, hJet);
           FillHist2D(Type::LLJet, hJet, vsJet);
-          ++nLeadJetEvt;
-          ++nLeadJetTot;
+          ++nEvt[Type::LLJet];
+          ++nTot[Type::LLJet];
         }
       }  // end 2nd jet loop
 
       // fill event histograms
-      vecHistEvt.at(Evt::NJet)     -> Fill(nJetEvt);
-      vecHistEvt.at(Evt::NTagJet)  -> Fill(nTagJetEvt);
-      vecHistEvt.at(Evt::NLeadJet) -> Fill(nLeadJetEvt); 
-      vecHistEvt.at(Evt::NLam)     -> Fill(nLamEvt);
-      vecHistEvt.at(Evt::NLeadLam) -> Fill(nLeadLamEvt);
+      vecHistEvt.at(Evt::NJet)      -> Fill(nEvt[Type::Jet]);
+      vecHistEvt.at(Evt::NTagJet)   -> Fill(nEvt[Type::LJet]);
+      vecHistEvt.at(Evt::NLeadJet)  -> Fill(nEvt[Type::LLJet]);
+      vecHistEvt.at(Evt::NMultiJet) -> Fill(nEvt[Type::MLJet]);
+      vecHistEvt.at(Evt::NLam)      -> Fill(nEvt[Type::Lam]);
+      vecHistEvt.at(Evt::NLeadLam)  -> Fill(nEvt[Type::LLam]);
 
     }  // end event loop
     cout << "    Event loop finished!\n"
-         << "      nLambda      = " << nLamTot     << "\n"
-         << "      nLeadLambda  = " << nLeadLamTot << "\n"
-         << "      nJet         = " << nJetTot     << "\n"
-         << "      nTaggedJets  = " << nTagJetTot  << "\n"
-         << "      nLeadTagJets = " << nLeadJetTot
+         << "      nLambda          = " << nTot[Type::Lam]   << "\n"
+         << "      nLeadLambda      = " << nTot[Type::LLam]  << "\n"
+         << "      nJet             = " << nTot[Type::Jet]   << "\n"
+         << "      nTaggedJets      = " << nTot[Type::LJet]  << "\n"
+         << "      nLeadTagJets     = " << nTot[Type::LLJet] << "\n"
+         << "      nMultiLambdaJets = " << nTot[Type::MLJet]
          << endl;
 
     // exit routine

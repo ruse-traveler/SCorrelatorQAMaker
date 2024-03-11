@@ -48,7 +48,7 @@ namespace SColdQcdCorrelatorAnalysis {
         NJet, 
         NTagJet,
         NLeadJet,
-        NMultiLamJet,
+        NMultiJet,
         NLam,
         NLamJet,
         NLeadLam
