@@ -159,121 +159,64 @@ namespace SColdQcdCorrelatorAnalysis {
 
   void SReadLambdaJetTree::InitHists() {
 
-    // no. of histogram binning
-    const size_t nNumBins  = 100;
-    const size_t nFracBins = 500;
-    const size_t nEneBins  = 100;
-    const size_t nEtaBins  = 80;
-    const size_t nDfBins   = 180;
-    const size_t nDhBins   = 160;
-    const size_t nDrBins   = 500;
-
-    // histogram ranges
-    const pair<float, float> rNumBins  = {0.0,   100.};
-    const pair<float, float> rFracBins = {0.0,   5.0};
-    const pair<float, float> rEneBins  = {0.0,   100.};
-    const pair<float, float> rEtaBins  = {-2.0,  2.0};
-    const pair<float, float> rDfBins   = {-3.15, 3.15};
-    const pair<float, float> rDhBins   = {-4.,   4.};
-    const pair<float, float> rDrBins   = {0.0,   5.0};
-
-    // axis definitions
-    const vector<tuple<string, size_t, pair<float, float>>> vecAxisDef = {
-      make_tuple("#eta",            nEtaBins,  rEtaBins),
-      make_tuple("E [GeV/c]",       nEneBins,  rEneBins),
-      make_tuple("p_{T} [GeV/c]",   nEneBins,  rEneBins),
-      make_tuple("#Delta#varphi",   nDfBins,   rDfBins),
-      make_tuple("#Delta#eta",      nDhBins,   rDhBins),
-      make_tuple("#Deltar",         nDrBins,   rDrBins),
-      make_tuple("z = p / p^{jet}", nFracBins, rFracBins)
-    };
-    const vector<tuple<string, size_t, pair<float, float>>> vecVsDef = {
-      make_tuple("#eta",            nEtaBins,  rEtaBins),
-      make_tuple("E [GeV/c]",       nEneBins,  rEneBins),
-      make_tuple("p_{T} [GeV/c]",   nEneBins,  rEneBins),
-      make_tuple("#Delta#varphi",   nDfBins,   rDfBins),
-      make_tuple("#Delta#eta",      nDhBins,   rDhBins)
-    };
-
-    // histogram base names
-    const vector<string> vecBaseNames = {
-      "hEta",
-      "hEne",
-      "hPt",
-      "hDeltaPhi",
-      "hDeltaEta",
-      "hDeltaR",
-      "hFrac"
-    };
-    const vector<string> vecVsMods = {
-      "VsEta",
-      "VsEne",
-      "VsPt",
-      "VsDeltaPhi",
-      "VsDeltaEta"
-    };
-    const vector<string> vecTypeNames = {
-      "Lam",
-      "LeadLam",
-      "Jet",
-      "LamJet",
-      "LeadLamJet",
-      "HighestPtJet"
-    };
-
     // make sure sumw2 is on
     TH1::SetDefaultSumw2(true);
     TH2::SetDefaultSumw2(true);
 
     // create event histograms
-    vecHistEvt.push_back( new TH1D("hNumJet",         ";N_{jet};counts",     nNumBins, rNumBins.first, rNumBins.second) );
-    vecHistEvt.push_back( new TH1D("hNumTagJet",      ";N_{jet};counts",     nNumBins, rNumBins.first, rNumBins.second) );
-    vecHistEvt.push_back( new TH1D("hNumLeadLamJet",  ";N_{jet};counts",     nNumBins, rNumBins.first, rNumBins.second) );
-    vecHistEvt.push_back( new TH1D("hNumLambda",      ";N_{#Lambda};counts", nNumBins, rNumBins.first, rNumBins.second) );
-    vecHistEvt.push_back( new TH1D("hNumLambdaInJet", ";N_{#Lambda};counts", nNumBins, rNumBins.first, rNumBins.second) );
-    vecHistEvt.push_back( new TH1D("hNumLeadLambda",  ";N_{#Lambda};counts", nNumBins, rNumBins.first, rNumBins.second) );
+    for (auto evtNameAndTitle : m_hist.vecEvtNameAndTitles) {
+      vecHistEvt.push_back(
+        new TH1D(
+          evtNameAndTitle.first.data(),
+          evtNameAndTitle.second.data(),
+          m_hist.nNumBins,
+          m_hist.rNumBins.first,
+          m_hist.rNumBins.second
+        )
+      );
+    }
 
     // create jet/lambda histograms
-    vecHist1D.resize(m_const.nHistType);
-    vecHist2D.resize(m_const.nHistType);
-    for (size_t iType = 0; iType < m_const.nHistType; iType++) {
+    vecHist1D.resize( m_hist.vecTypeNames.size() );
+    vecHist2D.resize( m_hist.vecTypeNames.size() );
+    for (size_t iType = 0; iType < m_hist.vecTypeNames.size(); iType++) {
 
       // loop over base variables
-      vecHist1D[iType].resize(m_const.nHistVar);
-      vecHist2D[iType].resize(m_const.nHistVar);
-      for (size_t iVar = 0; iVar < m_const.nHistVar; iVar++) {
+      vecHist1D[iType].resize( m_hist.vecBaseNames.size() );
+      vecHist2D[iType].resize( m_hist.vecBaseNames.size() );
+      for (size_t iVar = 0; iVar < m_hist.vecBaseNames.size(); iVar++) {
  
         // make 1d name and title
-        const string sName1D  = vecBaseNames[iVar] + "_" + vecTypeNames[iType];
-        const string sTitle1D = ";" + get<0>(vecAxisDef[iVar]) + ";counts";
+        const string sName1D  = m_hist.vecBaseNames[iVar] + "_" + m_hist.vecTypeNames[iType];
+        const string sTitle1D = ";" + get<0>(m_hist.vecAxisDef[iVar]) + ";counts";
 
         // create 1d histogram
         vecHist1D[iType][iVar] = new TH1D(
           sName1D.data(),
           sTitle1D.data(),
-          get<1>(vecAxisDef[iVar]),
-          get<2>(vecAxisDef[iVar]).first,
-          get<2>(vecAxisDef[iVar]).second
+          get<1>(m_hist.vecAxisDef[iVar]),
+          get<2>(m_hist.vecAxisDef[iVar]).first,
+          get<2>(m_hist.vecAxisDef[iVar]).second
         );
 
         // loop over vs variables
-        vecHist2D[iType][iVar].resize(m_const.nHistVs);
-        for (size_t iVs = 0; iVs < m_const.nHistVs; iVs++) {
+        vecHist2D[iType][iVar].resize( m_hist.vecVsMods.size() );
+        for (size_t iVs = 0; iVs < m_hist.vecVsMods.size(); iVs++) {
  
           // make 2d name and title
-          const string sName2D  = vecBaseNames[iVar] + vecVsMods[iVs] + "_" + vecTypeNames[iType];
-          const string sTitle2D = ";" + get<0>(vecVsDef[iVs]) + ";" + get<0>(vecAxisDef[iVar]) + ";counts";
+          const string sName2D  = m_hist.vecBaseNames[iVar] + m_hist.vecVsMods[iVs] + "_" + m_hist.vecTypeNames[iType];
+          const string sTitle2D = ";" + get<0>(m_hist.vecVsDef[iVs]) + ";" + get<0>(m_hist.vecAxisDef[iVar]) + ";counts";
 
           // create 2d histogram
           vecHist2D[iType][iVar][iVs] = new TH2D(
             sName2D.data(),
             sTitle2D.data(),
-            get<1>(vecVsDef[iVs]),
-            get<2>(vecVsDef[iVs]).first,
-            get<2>(vecVsDef[iVs]).second,
-            get<1>(vecAxisDef[iVar]),
-            get<2>(vecAxisDef[iVar]).first,
-            get<2>(vecAxisDef[iVar]).second
+            get<1>(m_hist.vecVsDef[iVs]),
+            get<2>(m_hist.vecVsDef[iVs]).first,
+            get<2>(m_hist.vecVsDef[iVs]).second,
+            get<1>(m_hist.vecAxisDef[iVar]),
+            get<2>(m_hist.vecAxisDef[iVar]).first,
+            get<2>(m_hist.vecAxisDef[iVar]).second
           );
         }  // end vs loop
       }  // end variable loop
@@ -468,6 +411,10 @@ namespace SColdQcdCorrelatorAnalysis {
         FillHist2D(Type::LJet, hJet, vsJet);
         ++nTagJetEvt;
         ++nTagJetTot;
+
+        // fill multi-lambda jet histogmras
+        FillHist1D(Type::MLJet, hJet);
+        FillHist2D(Type::MLJet, hJet, vsJet);
 
         // fill jet w/ leading lambda histograms
         if (hasLeadLam) {

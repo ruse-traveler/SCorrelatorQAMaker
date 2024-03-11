@@ -28,6 +28,7 @@
 // plugin definitions
 #include "SBaseQAPlugin.h"
 #include "SReadLambdaJetTreeConfig.h"
+#include "SReadLambdaJetTreeHistDef.h"
 
 // make common namespaces implicit
 using namespace std;
@@ -47,6 +48,7 @@ namespace SColdQcdCorrelatorAnalysis {
         NJet, 
         NTagJet,
         NLeadJet,
+        NMultiLamJet,
         NLam,
         NLamJet,
         NLeadLam
@@ -57,6 +59,7 @@ namespace SColdQcdCorrelatorAnalysis {
         Jet,
         LJet,
         LLJet,
+        MLJet,
         HJet
       };
       enum Var {
@@ -105,6 +108,9 @@ namespace SColdQcdCorrelatorAnalysis {
       void Analyze();
       void End();
 
+      // plugin-specific setters
+      void SetHistDef(SReadLambdaJetTreeHistDef& def) {m_hist = def;}
+
     private:
 
       // internal methods
@@ -132,6 +138,9 @@ namespace SColdQcdCorrelatorAnalysis {
       vector<TH1D*>                 vecHistEvt;
       vector<vector<TH1D*>>         vecHist1D;
       vector<vector<vector<TH2D*>>> vecHist2D;
+
+      // histogram definitions
+      SReadLambdaJetTreeHistDef m_hist;
 
       // event-level input leaves
       int    m_evtNJets;
@@ -235,12 +244,12 @@ namespace SColdQcdCorrelatorAnalysis {
 
       // class-wide constants
       struct Const {
-        size_t nHistType;
-        size_t nHistVar;
-        size_t nHistVs;
         double minDPhi;
         double maxDPhi;
-      } m_const = {6, 7, 5, -1.*TMath::Pi(), TMath::Pi()}; 
+      } m_const = {
+        -1.*TMath::Pi(),
+        TMath::Pi()
+      }; 
 
   };  // end SReadLambdaJetTree
 

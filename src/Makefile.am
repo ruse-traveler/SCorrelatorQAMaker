@@ -23,6 +23,7 @@ pkginclude_HEADERS = \
   SMakeClustQATreeOutput.h \
   SMakeTrackQATuple.h \
   SMakeTrackQATupleConfig.h \
+  SMakeTrackQATupleHistDef.h \
   SReadLambdaJetTree.h \
   SReadLambdaJetTreeConfig.h
 
