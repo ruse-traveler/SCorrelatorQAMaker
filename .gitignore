@@ -23,4 +23,5 @@ reference/*
 !src/SReadLambdaJetTree.h
 !src/SReadLambdaJetTree.cc
 !src/SReadLambdaJetTreeConfig.h
+!src/SReadLambdaJetTreeHistDef.h
 !src/SCorrelatorQAMakerLinkDef.h

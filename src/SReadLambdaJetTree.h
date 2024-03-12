@@ -82,29 +82,6 @@ namespace SColdQcdCorrelatorAnalysis {
         VsDEta
       };
 
-      // histograms to fill
-      struct Hist {
-        double eta;
-        double ene;
-        double mom;
-        double pt;
-        double df;
-        double dh;
-        double dr;
-        double z;
-        double nlam;
-        double ncst;
-        double plam;
-      };
-      struct VsVar {
-        double eta;
-        double ene;
-        double mom;
-        double pt;
-        double df;
-        double dh;
-      };
-
       // ctor/dtor
       SReadLambdaJetTree()  {};
       ~SReadLambdaJetTree() {};
