@@ -69,7 +69,10 @@ namespace SColdQcdCorrelatorAnalysis {
         DPhi,
         DEta,
         Dr,
-        Z
+        Z,
+        NL,
+        NC,
+        RLC
       };
       enum Mod {
         VsEta,
@@ -89,6 +92,9 @@ namespace SColdQcdCorrelatorAnalysis {
         double dh;
         double dr;
         double z;
+        double nlam;
+        double ncst;
+        double plam;
       };
       struct VsVar {
         double eta;

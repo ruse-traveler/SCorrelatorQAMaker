@@ -272,15 +272,29 @@ namespace SColdQcdCorrelatorAnalysis {
       bool     foundTopPt = false;
       double   ptTop      = 0.;
       uint64_t iTopPt     = 0;
+      uint64_t nLamTop    = 0;
       for (size_t iJet = 0; iJet < nVecJets; iJet++) {
 
         // make sure jet satisfies cuts
         const bool isGoodJet = IsGoodJet(m_jetPt -> at(iJet), m_jetEta -> at(iJet));
         if (!isGoodJet) continue; 
 
+        // find associated lambda(s)
+        uint64_t nLamJet    = 0;
+        for (size_t iLam = 0; iLam < nVecLams; iLam++) {
+
+          // check if lambda is associated
+          const bool isAssocLam = IsAssociatedLambda(m_lambdaJetID -> at(iLam), m_jetID -> at(iJet));
+          if (!isAssocLam) {
+            continue;
+          }
+          ++nLamJet;
+        }  // end lambda loop
+
         if (m_jetPt -> at(iJet) > ptTop) {
           ptTop      = m_jetPt -> at(iJet);
           iTopPt     = iJet;
+          nLamTop    = nLamJet;
           foundTopPt = true;
         }
       }  // end 1st jet loop
@@ -288,13 +302,16 @@ namespace SColdQcdCorrelatorAnalysis {
       // fill highest pt histograms
       if (foundTopPt) {
         Hist hTopPtJet = {
-          .eta = m_jetEta -> at(iTopPt),
-          .ene = m_jetE   -> at(iTopPt),
-          .pt  = m_jetPt  -> at(iTopPt),
-          .df  = 0.,
-          .dh  = 0.,
-          .dr  = 0.,
-          .z   = 1.
+          .eta  = m_jetEta -> at(iTopPt),
+          .ene  = m_jetE   -> at(iTopPt),
+          .pt   = m_jetPt  -> at(iTopPt),
+          .df   = 0.,
+          .dh   = 0.,
+          .dr   = 0.,
+          .z    = 1.,
+          .nlam = (double) nLamTop,
+          .ncst = (double) m_jetNCst -> at(iTopPt),
+          .plam = (double) nLamTop / (double) m_jetNCst -> at(iTopPt)
         };
         VsVar vsTopPtJet = {
           .eta = m_jetEta -> at(iTopPt),
@@ -320,13 +337,16 @@ namespace SColdQcdCorrelatorAnalysis {
 
         // fill general lambda histograms
         Hist hLambda = {
-          .eta = m_lambdaEta    -> at(iLam),
-          .ene = m_lambdaEnergy -> at(iLam),
-          .pt  = m_lambdaPt     -> at(iLam),
-          .df  = dfLam,
-          .dh  = dhLam,
-          .dr  = m_lambdaDr -> at(iLam),
-          .z   = m_lambdaZ  -> at(iLam)
+          .eta  = m_lambdaEta    -> at(iLam),
+          .ene  = m_lambdaEnergy -> at(iLam),
+          .pt   = m_lambdaPt     -> at(iLam),
+          .df   = dfLam,
+          .dh   = dhLam,
+          .dr   = m_lambdaDr -> at(iLam),
+          .z    = m_lambdaZ  -> at(iLam),
+          .nlam = 1,
+          .ncst = 0,
+          .plam = 1
         };
         VsVar vsLambda = {
           .eta = m_lambdaEta    -> at(iLam),
@@ -360,15 +380,40 @@ namespace SColdQcdCorrelatorAnalysis {
         const double dfJet = GetDeltaPhi(m_jetPhi -> at(iJet), m_jetPhi -> at(iTopPt));
         const double dhJet = GetDeltaEta(m_jetEta -> at(iJet), m_jetEta -> at(iTopPt));
 
+        // find associated lambda(s)
+        bool     hasLambda  = false;
+        bool     hasLeadLam = false;
+        uint64_t nLamJet    = 0;
+        for (size_t iLam = 0; iLam < nVecLams; iLam++) {
+
+          // check if lambda is associated
+          const bool isAssocLam = IsAssociatedLambda(m_lambdaJetID -> at(iLam), m_jetID -> at(iJet));
+          if (!isAssocLam) {
+            continue;
+          } else {
+            hasLambda = true;
+          }
+          ++nLamJet;
+
+          // check if lambda is leading
+          const bool isLeadLam = IsLeadingLambda(m_lambdaZ -> at(iLam));
+          if (isLeadLam) hasLeadLam = true;
+
+        }  // end lambda loop
+        vecHistEvt.at(Evt::NLamJet) -> Fill(nLamJet);
+
         // fill general jet histograms
         Hist hJet = {
-          .eta = m_jetEta -> at(iJet),
-          .ene = m_jetE   -> at(iJet),
-          .pt  = m_jetPt  -> at(iJet),
-          .df  = dfJet,
-          .dh  = dhJet,
-          .dr  = 0.,
-          .z   = 1.
+          .eta  = m_jetEta -> at(iJet),
+          .ene  = m_jetE   -> at(iJet),
+          .pt   = m_jetPt  -> at(iJet),
+          .df   = dfJet,
+          .dh   = dhJet,
+          .dr   = 0.,
+          .z    = 1.,
+          .nlam = (double) nLamJet,
+          .ncst = (double) m_jetNCst -> at(iJet),
+          .plam = (double) nLamJet / (double) m_jetNCst -> at(iJet)
         };
         VsVar vsJet = {
           .eta = m_jetEta -> at(iJet),
@@ -382,34 +427,16 @@ namespace SColdQcdCorrelatorAnalysis {
         ++nEvt[Type::Jet];
         ++nTot[Type::Jet];
 
-        // if no associated lambda, continue
-        const bool hasLambda = m_jetHasLambda -> at(iJet);
-        if (!hasLambda) continue;
-
-        // find associated lambda(s)
-        bool     hasLeadLam = false;
-        uint64_t nLamJet    = 0;
-        for (size_t iLam = 0; iLam < nVecLams; iLam++) {
-
-          // check if lambda is associated
-          const bool isAssocLam = IsAssociatedLambda(m_lambdaJetID -> at(iLam), m_jetID -> at(iJet));
-          if (!isAssocLam) {
-            continue;
-          }
-          ++nLamJet;
-
-          // check if lambda is leading
-          const bool isLeadLam = IsLeadingLambda(m_lambdaZ -> at(iLam));
-          if (isLeadLam) hasLeadLam = true;
-
-        }  // end lambda loop
-        vecHistEvt.at(Evt::NLamJet) -> Fill(nLamJet);
-
-        // fill tagged jet histograms
-        FillHist1D(Type::LJet, hJet);
-        FillHist2D(Type::LJet, hJet, vsJet);
-        ++nEvt[Type::LJet];
-        ++nTot[Type::LJet];
+        // if no lambdas, continue
+        //   otherwise fill hists
+        if (!hasLambda) {
+          continue;
+        } else {
+          FillHist1D(Type::LJet, hJet);
+          FillHist2D(Type::LJet, hJet, vsJet);
+          ++nEvt[Type::LJet];
+          ++nTot[Type::LJet];
+        }
 
         // fill multi-lambda jet histogmras
         if (nLamJet >= 2) {
@@ -575,6 +602,9 @@ namespace SColdQcdCorrelatorAnalysis {
     vecHist1D.at(type)[Var::DEta] -> Fill(hist.dh);
     vecHist1D.at(type)[Var::Dr]   -> Fill(hist.dr);
     vecHist1D.at(type)[Var::Z]    -> Fill(hist.z);
+    vecHist1D.at(type)[Var::NL]   -> Fill(hist.nlam);
+    vecHist1D.at(type)[Var::NC]   -> Fill(hist.ncst);
+    vecHist1D.at(type)[Var::RLC]  -> Fill(hist.plam);
     return;
 
   }  // end 'FillHist1D(int, Hist)'
@@ -591,6 +621,9 @@ namespace SColdQcdCorrelatorAnalysis {
     vecHist2D.at(type)[Var::DEta][Mod::VsEta] -> Fill(vs.eta, hist.dh);
     vecHist2D.at(type)[Var::Dr][Mod::VsEta]   -> Fill(vs.eta, hist.dr);
     vecHist2D.at(type)[Var::Z][Mod::VsEta]    -> Fill(vs.eta, hist.z);
+    vecHist2D.at(type)[Var::NL][Mod::VsEta]   -> Fill(vs.eta, hist.nlam);
+    vecHist2D.at(type)[Var::NC][Mod::VsEta]    -> Fill(vs.eta, hist.ncst);
+    vecHist2D.at(type)[Var::RLC][Mod::VsEta]  -> Fill(vs.eta, hist.plam);
 
     // fill vs. energy histograms
     vecHist2D.at(type)[Var::Eta][Mod::VsEne]  -> Fill(vs.ene, hist.eta);
@@ -600,6 +633,9 @@ namespace SColdQcdCorrelatorAnalysis {
     vecHist2D.at(type)[Var::DEta][Mod::VsEne] -> Fill(vs.ene, hist.dh);
     vecHist2D.at(type)[Var::Dr][Mod::VsEne]   -> Fill(vs.ene, hist.dr);
     vecHist2D.at(type)[Var::Z][Mod::VsEne]    -> Fill(vs.ene, hist.z);
+    vecHist2D.at(type)[Var::NL][Mod::VsEne]   -> Fill(vs.ene, hist.nlam);
+    vecHist2D.at(type)[Var::NC][Mod::VsEne]    -> Fill(vs.ene, hist.ncst);
+    vecHist2D.at(type)[Var::RLC][Mod::VsEne]  -> Fill(vs.ene, hist.plam);
 
     // fill vs. pt histograms
     vecHist2D.at(type)[Var::Eta][Mod::VsPt]  -> Fill(vs.pt, hist.eta);
@@ -609,6 +645,9 @@ namespace SColdQcdCorrelatorAnalysis {
     vecHist2D.at(type)[Var::DEta][Mod::VsPt] -> Fill(vs.pt, hist.dh);
     vecHist2D.at(type)[Var::Dr][Mod::VsPt]   -> Fill(vs.pt, hist.dr);
     vecHist2D.at(type)[Var::Z][Mod::VsPt]    -> Fill(vs.pt, hist.z);
+    vecHist2D.at(type)[Var::NL][Mod::VsPt]   -> Fill(vs.pt, hist.nlam);
+    vecHist2D.at(type)[Var::NC][Mod::VsPt]    -> Fill(vs.pt, hist.ncst);
+    vecHist2D.at(type)[Var::RLC][Mod::VsPt]  -> Fill(vs.pt, hist.plam);
 
     // fill vs. delta-phi histograms
     vecHist2D.at(type)[Var::Eta][Mod::VsDPhi]  -> Fill(vs.df, hist.eta);
@@ -618,6 +657,9 @@ namespace SColdQcdCorrelatorAnalysis {
     vecHist2D.at(type)[Var::DEta][Mod::VsDPhi] -> Fill(vs.df, hist.dh);
     vecHist2D.at(type)[Var::Dr][Mod::VsDPhi]   -> Fill(vs.df, hist.dr);
     vecHist2D.at(type)[Var::Z][Mod::VsDPhi]    -> Fill(vs.df, hist.z);
+    vecHist2D.at(type)[Var::NL][Mod::VsDPhi]   -> Fill(vs.df, hist.nlam);
+    vecHist2D.at(type)[Var::NC][Mod::VsDPhi]    -> Fill(vs.df, hist.ncst);
+    vecHist2D.at(type)[Var::RLC][Mod::VsDPhi]  -> Fill(vs.df, hist.plam);
 
     // fill vs. delta-eta histograms
     vecHist2D.at(type)[Var::Eta][Mod::VsDEta]  -> Fill(vs.dh, hist.eta);
@@ -627,6 +669,9 @@ namespace SColdQcdCorrelatorAnalysis {
     vecHist2D.at(type)[Var::DEta][Mod::VsDEta] -> Fill(vs.dh, hist.dh);
     vecHist2D.at(type)[Var::Dr][Mod::VsDEta]   -> Fill(vs.dh, hist.dr);
     vecHist2D.at(type)[Var::Z][Mod::VsDEta]    -> Fill(vs.dh, hist.z);
+    vecHist2D.at(type)[Var::NL][Mod::VsDEta]   -> Fill(vs.dh, hist.nlam);
+    vecHist2D.at(type)[Var::NC][Mod::VsDEta]    -> Fill(vs.dh, hist.ncst);
+    vecHist2D.at(type)[Var::RLC][Mod::VsDEta]  -> Fill(vs.dh, hist.plam);
     return;
 
   }  // end 'FillHist2D(int, Hist, VsVar)'
