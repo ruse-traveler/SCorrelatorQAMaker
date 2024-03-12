@@ -56,6 +56,7 @@ namespace SColdQcdCorrelatorAnalysis {
       enum Type {
         Lam,
         LLam,
+        MLJetLam,
         Jet,
         LJet,
         LLJet,

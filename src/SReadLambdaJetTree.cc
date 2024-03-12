@@ -440,11 +440,50 @@ namespace SColdQcdCorrelatorAnalysis {
 
         // fill multi-lambda jet histogmras
         if (nLamJet >= 2) {
+
+          // fill jet histograms
           FillHist1D(Type::MLJet, hJet);
           FillHist2D(Type::MLJet, hJet, vsJet);
           ++nEvt[Type::MLJet];
           ++nTot[Type::MLJet];
-        }
+
+          // loop over lambdas in jet
+          for (size_t iLam = 0; iLam < nVecLams; iLam++) {
+
+            // do calculations
+            const double dfLam = GetDeltaPhi(m_lambdaPhi -> at(iLam), m_jetPhi -> at(iTopPt));
+            const double dhLam = GetDeltaEta(m_lambdaEta -> at(iLam), m_jetEta -> at(iTopPt)); 
+
+            // check if lambda is associated
+            const bool isAssocLam = IsAssociatedLambda(m_lambdaJetID -> at(iLam), m_jetID -> at(iJet));
+            if (!isAssocLam) {
+              continue;
+            }
+
+            // fill lambda in multi-lambda jet histograms
+            Hist hLamInMLJet = {
+              .eta  = m_lambdaEta    -> at(iLam),
+              .ene  = m_lambdaEnergy -> at(iLam),
+              .pt   = m_lambdaPt     -> at(iLam),
+              .df   = dfLam,
+              .dh   = dhLam,
+              .dr   = m_lambdaDr -> at(iLam),
+              .z    = m_lambdaZ  -> at(iLam),
+              .nlam = 1,
+              .ncst = 0,
+              .plam = 1
+            };
+            VsVar vsLamInMLJet = {
+              .eta = m_lambdaEta    -> at(iLam),
+              .ene = m_lambdaEnergy -> at(iLam),
+              .pt  = m_lambdaPt     -> at(iLam),
+              .df  = dfLam,
+              .dh  = dhLam
+            };
+            FillHist1D(Type::MLJetLam, hLamInMLJet);
+            FillHist2D(Type::MLJetLam, hLamInMLJet, vsLamInMLJet);
+          }  // end lambda loop
+        }  // end if (nLamJet >= 2)
 
         // fill jet w/ leading lambda histograms
         if (hasLeadLam) {

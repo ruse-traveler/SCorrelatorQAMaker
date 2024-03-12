@@ -26,6 +26,7 @@ namespace SColdQcdCorrelatorAnalysis {
     vector<string> vecTypeNames = {
       "Lam",
       "LeadLam",
+      "LamInMultiJet",
       "Jet",
       "LamJet",
       "LeadLamJet",
