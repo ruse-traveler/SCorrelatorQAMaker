@@ -7,7 +7,11 @@
 # Short script to run 'RunStandaloneCorrelatorQAModules.C'.
 # -----------------------------------------------------------------------------
 
-exec("root -b -q RunStandaloneCorrelatorQAModules.C")
+if ARGV[0] == "condor"
+  exec("condor_submit RunStandaloneCorrelatorQAModulesOnCondor.job")
+else
+  exec("root -b -q RunStandaloneCorrelatorQAModules.C")
+end
 
 # end -------------------------------------------------------------------------
 
