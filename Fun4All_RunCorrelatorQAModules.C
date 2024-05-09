@@ -32,7 +32,7 @@
 // calo/pf libraries
 #include <caloreco/RawClusterBuilderTopo.h>
 #include <particleflowreco/ParticleFlowReco.h>
-// user includes
+// analysis utilities
 #include "CorrelatorQAMakerOptions.h"
 #include "/sphenix/user/danderson/install/include/scorrelatorqamaker/SCorrelatorQAMaker.h"
 #include "/sphenix/user/danderson/install/include/scorrelatorqamaker/SCheckTrackPairs.h"
