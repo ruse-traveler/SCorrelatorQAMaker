@@ -45,9 +45,9 @@ void CalculateSigmaDca() {
   // options ------------------------------------------------------------------
 
   // io parameters
-  const string sInput("../SCorrelatorJetTree/output/condor/final_merge/correlatorJetTree.pp200py8jet10run8_openCutsWithTrkTupleQA.d12m10y2023.root");
+  const string sInput("../SCorrelatorJetTree/output/condor/final_merge/correlatorJetTree.pp200py8jet10run8_forVtxCutTest_onlyPrimTrks.d22m10y2023.root");
   const string sTuple("QA/Tracks/ntTrkQA"); 
-  const string sOutput("dcaSigmaCalc.pp200py8jet10run8_withCutsOtherThanDca_withCubicFitAndPtRange.d15m10y2023.root");
+  const string sOutput("dcaSigmaCalc.pp200py8jet10run8_smallSample_onlyPrimTrks_withCubicFitAndPtRange.d22m10y2023.root");
 
   // histogram parameters
   const array<string, NDca> sDcaVsPtAll = {"hDcaXYvsPtAll",       "hDcaZvsPtAll"};

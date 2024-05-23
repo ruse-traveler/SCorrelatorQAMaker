@@ -12,15 +12,16 @@
 // c++ utilities
 #include <string>
 #include <utility>
-// analysis libraries
-#include "/sphenix/user/danderson/install/include/scorrelatorutilities/Types.h"
-#include "/sphenix/user/danderson/install/include/scorrelatorutilities/Constants.h"
-#include "/sphenix/user/danderson/install/include/scorrelatorqamaker/SMakeClustQATree.h"
-#include "/sphenix/user/danderson/install/include/scorrelatorqamaker/SMakeTrackQATuple.h"
-#include "/sphenix/user/danderson/install/include/scorrelatorqamaker/SCheckTrackPairsConfig.h"
-#include "/sphenix/user/danderson/install/include/scorrelatorqamaker/SReadLambdaJetTreeConfig.h"
+// analysis utilities
+#include <scorrelatorutilities/Types.h>
+#include <scorrelatorutilities/Constants.h>
+// plugin configurations
+#include <scorrelatorqamaker/SMakeClustQATreeConfig.h>
+#include <scorrelatorqamaker/SCheckTrackPairsConfig.h>
+#include <scorrelatorqamaker/SMakeTrackQATupleConfig.h>
+#include <scorrelatorqamaker/SReadLambdaJetTreeConfig.h>
 
-// make common namespacs implicit
+// make common namespaces implicit
 using namespace std;
 using namespace SColdQcdCorrelatorAnalysis;
 
@@ -155,7 +156,7 @@ namespace CorrelatorQAMakerOptions {
     SReadLambdaJetTreeConfig config = {
       .inFileName = input,
       .inTreeName = "LambdaJetTree",
-      .ptJetMin   = 10.,
+      .ptJetMin   = 25.,
       .ptLamMin   = 0.2,
       .etaJetMax  = 0.7,
       .etaLamMax  = 1.1,

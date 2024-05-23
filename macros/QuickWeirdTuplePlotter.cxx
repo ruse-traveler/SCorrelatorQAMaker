@@ -38,8 +38,8 @@ void QuickWeirdTuplePlotter() {
   // options, histogram binning, and histogram definitions --------------------
 
   // i/o parameters
-  const string sOutput  = "test.root";
-  const string sInput   = "testingPpInput_withWeirdTuples_ptTrk02.root";
+  const string sOutput  = "weirdTracksVsDr.pp200py8jet10run8.d27m10y2023.root";
+  const string sInput   = "output/condor/final_merge/correlatorJetTree.pp200py8jet10run8_roughCutsWithWeirdTrackTuple.d27m10y2023.root";
   const string sInTuple = "ntWeirdTracks";
 
   // cuts to apply, drawing options & delta-r leaf
